@@ -1,26 +1,36 @@
 @import "tailwindcss";
 
+/**
+ * GAMBIT YourMove — base tokens.
+ *
+ * The interface is dark-only for now. That is a product decision, not an
+ * oversight: the app is used while the user is mid-negotiation and looking at
+ * their own inbox in another window, and a single, quiet surface keeps the
+ * READ card the only thing competing for attention. A light theme is a Day-3
+ * question if it earns its place.
+ *
+ * Fonts are a system stack — see the note in layout.tsx for why this project
+ * does not fetch webfonts at build time.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0b;
+  --foreground: #ededed;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }

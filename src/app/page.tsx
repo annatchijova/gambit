@@ -1,69 +1,133 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { ReadCard } from '@/components/ReadCard';
+import type { ReadOutput } from '@/lib/schemas/read_schema';
+
+/**
+ * READ screen — one screen, one idea.
+ *
+ * Day-1 scope. THINK, TRAIN and SCORE get their own screens in later phases;
+ * they are deliberately absent rather than stubbed, so nothing on screen
+ * promises a capability that does not exist yet.
+ */
+
+interface ReadResponse {
+  mode: 'live' | 'mock';
+  read: ReadOutput;
+  meta: { elapsedMs: number; attempts: number };
+}
+
+type Status =
+  | { phase: 'idle' }
+  | { phase: 'reading' }
+  | { phase: 'done'; data: ReadResponse }
+  | { phase: 'failed'; message: string };
 
 export default function Home() {
+  const [message, setMessage] = useState('');
+  const [hasAlternative, setHasAlternative] = useState(false);
+  const [status, setStatus] = useState<Status>({ phase: 'idle' });
+
+  async function runRead() {
+    setStatus({ phase: 'reading' });
+    try {
+      const res = await fetch('/api/read', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          context: {
+            relationship: 'unknown',
+            hasAlternative,
+            underTimePressure: false,
+            note: '',
+          },
+        }),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        setStatus({ phase: 'failed', message: body?.error?.message ?? 'The request failed.' });
+        return;
+      }
+      setStatus({ phase: 'done', data: body as ReadResponse });
+    } catch {
+      setStatus({ phase: 'failed', message: 'Could not reach the server.' });
+    }
+  }
+
+  const busy = status.phase === 'reading';
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-8 px-6 py-16">
+      <header>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">
+          GAMBIT YourMove
+        </p>
+        <h1 className="mt-2 text-2xl font-medium tracking-tight text-white">
+          What are they actually doing?
+        </h1>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/50">
+          Paste the message you received. GAMBIT names the tactic, shows the
+          evidence it used, and tells you how sure it is. It will not write your
+          reply for you.
+        </p>
+      </header>
+
+      <div className="flex flex-col gap-3">
+        <label htmlFor="message" className="sr-only">
+          Message from the counterparty
+        </label>
+        <textarea
+          id="message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          rows={7}
+          maxLength={4000}
+          placeholder="Paste their message here…"
+          className="w-full resize-y rounded-lg border border-white/10 bg-black/30 p-4 text-sm leading-relaxed text-white/90 outline-none transition placeholder:text-white/25 focus:border-white/30"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <label className="flex items-center gap-2 text-sm text-white/50">
+            <input
+              type="checkbox"
+              checked={hasAlternative}
+              onChange={(e) => setHasAlternative(e.target.checked)}
+              className="h-4 w-4 accent-white/70"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            I have a concrete alternative I would take
+          </label>
+
+          <button
+            type="button"
+            onClick={runRead}
+            disabled={busy || message.trim().length === 0}
+            className="rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition disabled:cursor-not-allowed disabled:bg-white/20 disabled:text-white/40"
           >
-            Documentation
-          </a>
+            {busy ? 'Reading…' : 'Read this message'}
+          </button>
         </div>
-      </main>
-    </div>
+        <p className="text-right text-xs tabular-nums text-white/25">
+          {message.length} / 4000
+        </p>
+      </div>
+
+      {status.phase === 'failed' && (
+        <p className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
+          {status.message}
+        </p>
+      )}
+
+      {status.phase === 'done' && (
+        <>
+          <ReadCard read={status.data.read} mode={status.data.mode} />
+          <p className="text-xs tabular-nums text-white/25">
+            {status.data.meta.elapsedMs} ms · {status.data.meta.attempts} attempt
+            {status.data.meta.attempts === 1 ? '' : 's'}
+          </p>
+        </>
+      )}
+    </main>
   );
 }

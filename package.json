@@ -5,13 +5,22 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "start": "next start -p ${PORT:-3000}",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "docs:rules": "tsx scripts/generate_rules_doc.ts",
+    "docs:check": "tsx scripts/generate_rules_doc.ts --check",
+    "verify": "npm run typecheck && npm run lint && npm run docs:check && npm run test"
   },
   "dependencies": {
+    "@google/adk": "^1.6.0",
+    "@google/genai": "^2.17.1",
     "next": "16.3.1",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -21,6 +30,12 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.23.12",
+    "typescript": "^5",
+    "vitest": "^3.2.7"
+  },
+  "description": "GAMBIT YourMove — tactical AI copilot for high-stakes negotiations.",
+  "engines": {
+    "node": ">=22.0.0"
   }
 }

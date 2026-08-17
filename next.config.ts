@@ -1,7 +1,12 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /**
+   * Standalone output traces the exact server dependencies into
+   * `.next/standalone`, so the Cloud Run runtime image ships a minimal
+   * node_modules instead of the full install. See Dockerfile.
+   */
+  output: 'standalone',
 };
 
 export default nextConfig;
