@@ -1,0 +1,32 @@
+{
+  "note": "Regression corpus for the deterministic classifier in src/lib/state_rules.ts. IMPORTANT LIMITATION: these cases were written by the same author as the rules, so agreement here measures SELF-CONSISTENCY, not accuracy. It catches a refactor that breaks behaviour; it does not tell you the labels are right. Real accuracy requires messages collected independently of the rule table — add yours to `field` as you write them during TRAIN sessions and keep the two sets reported separately.",
+  "authored": [
+    { "id": "trade-01", "expect": "CONDITIONAL_TRADE", "message": "I can go down to 4,500 if you cover the licence fee." },
+    { "id": "trade-02", "expect": "CONDITIONAL_TRADE", "message": "I'll accept 78k provided you bring the review forward to six months." },
+    { "id": "trade-03", "expect": "CONDITIONAL_TRADE", "message": "Let's say 1,380 a month, as long as you handle the boiler repair before I move in." },
+    { "id": "trade-04", "expect": "CONDITIONAL_TRADE", "message": "I can come down to 3,200 in exchange for a credit on the case study." },
+
+    { "id": "give-01", "expect": "UNCONDITIONAL_CONCESSION", "message": "Fine, I'll accept 4,200." },
+    { "id": "give-02", "expect": "UNCONDITIONAL_CONCESSION", "message": "Okay, I can go down to 1,400. That works." },
+    { "id": "give-03", "expect": "UNCONDITIONAL_CONCESSION", "message": "I'll meet you at 60 day terms, no problem." },
+
+    { "id": "alt-01", "expect": "REJECT_ANCHOR_WITH_ALT", "message": "That doesn't work for me — I already have another offer on the table." },
+    { "id": "alt-02", "expect": "REJECT_ANCHOR_WITH_ALT", "message": "I can't do that number. I have other options I'm looking at seriously." },
+    { "id": "alt-03", "expect": "REJECT_ANCHOR_WITH_ALT", "message": "Unfortunately that's below my floor, and I've got another client ready to start Monday." },
+
+    { "id": "pressure-01", "expect": "PRESSURE_TEST", "message": "I need an answer by Friday or I will have to move on." },
+    { "id": "pressure-02", "expect": "PRESSURE_TEST", "message": "If we can't get there on price I'm ready to walk away from this one." },
+    { "id": "pressure-03", "expect": "PRESSURE_TEST", "message": "That's my final number." },
+
+    { "id": "anchor-01", "expect": "COUNTER_ANCHOR_VALIDATED", "message": "My number is 6,800, based on the market rate for this role." },
+    { "id": "anchor-02", "expect": "COUNTER_ANCHOR_VALIDATED", "message": "Comparable units in this building went for 1,650 last quarter, so 1,600 is where I am." },
+    { "id": "anchor-03", "expect": "COUNTER_ANCHOR_VALIDATED", "message": "The going rate for this scope is 4,500 — that's the industry standard for a six-week engagement." },
+
+    { "id": "ambiguous-01", "expect": "DEFAULT_AMBIGUOUS", "message": "Thanks for getting back to me, let me think about it." },
+    { "id": "ambiguous-02", "expect": "DEFAULT_AMBIGUOUS", "message": "Could you clarify what's included in the onboarding period?" },
+    { "id": "ambiguous-03", "expect": "DEFAULT_AMBIGUOUS", "message": "Wednesday at 3 works." },
+    { "id": "ambiguous-04", "expect": "DEFAULT_AMBIGUOUS", "message": "" },
+    { "id": "ambiguous-05", "expect": "DEFAULT_AMBIGUOUS", "message": "?????" }
+  ],
+  "field": []
+}

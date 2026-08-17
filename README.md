@@ -30,13 +30,39 @@ Requires **Node 22 or newer**.
 git clone <repository-url>
 cd gambit-yourmove
 npm install
-
 cp .env.example .env.local
-# then put a Gemini API key in .env.local:
-#   GEMINI_API_KEY=...
-# get one at https://aistudio.google.com
+```
 
-npm run dev            # http://localhost:3000
+Then pick a backend and put it in `.env.local`.
+
+**Gemini API** — fastest to start. Get a key at
+[aistudio.google.com](https://aistudio.google.com):
+
+```bash
+GEMINI_API_KEY=...
+```
+
+**Vertex AI** — better for the Cloud Run deployment, because the service
+authenticates with its own service account and no API key ever sits in an
+environment variable:
+
+```bash
+gcloud auth application-default login
+gcloud services enable aiplatform.googleapis.com --project <your-project>
+```
+
+```bash
+GOOGLE_GENAI_USE_VERTEXAI=true
+GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
+```
+
+**Confirm the backend works before writing anything else.** This is one call
+per model and it either passes or it tells you exactly what is wrong:
+
+```bash
+npm run verify:model     # writes docs/model_access.md
+npm run dev              # http://localhost:3000
 ```
 
 **No key to hand?** Run the interface against a stored fixture:
@@ -53,8 +79,33 @@ be mistaken for a live read.
 ### Verify the checkout
 
 ```bash
-npm run verify     # typecheck + lint + docs freshness + tests
+npm run verify           # typecheck + lint + docs freshness + classifier regression + tests
 ```
+
+Nothing in `verify` touches the network, so it runs the same on a laptop, in
+CI and on a plane.
+
+### Calibrate
+
+Two harnesses, measuring two different things.
+
+```bash
+npm run calibrate:rules  # deterministic classifier vs. its corpus
+npm run calibrate:read   # READ over 15 real messages (needs `npm run dev` running)
+```
+
+`calibrate:rules` reports the authored and field corpora **separately and
+never averages them**. Agreement on the authored corpus says the engine
+behaves as specified — it is a refactor guard. Only the field corpus, made of
+messages a real user typed, can say anything about accuracy, and it starts
+empty.
+
+`calibrate:read` runs the full HTTP route and writes
+`docs/read_test_log.md` with a blank verdict line per case. It deliberately
+does not score itself: a model grading its own tactic labels produces a
+percentage with nothing behind it. Two things to check on every case — that
+the quoted evidence is verbatim, and that the two `lowsignal-*` cases come
+back **Low**. If either returns High, the uncertainty layer is decorative.
 
 ### Deploy to Cloud Run
 

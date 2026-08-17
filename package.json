@@ -12,7 +12,10 @@
     "test:watch": "vitest",
     "docs:rules": "tsx scripts/generate_rules_doc.ts",
     "docs:check": "tsx scripts/generate_rules_doc.ts --check",
-    "verify": "npm run typecheck && npm run lint && npm run docs:check && npm run test"
+    "verify": "npm run typecheck && npm run lint && npm run docs:check && npm run calibrate:rules && npm run test",
+    "verify:model": "tsx scripts/verify_model_access.ts",
+    "calibrate:read": "tsx scripts/calibrate_read.ts",
+    "calibrate:rules": "tsx scripts/calibrate_rules.ts"
   },
   "dependencies": {
     "@google/adk": "^1.6.0",
