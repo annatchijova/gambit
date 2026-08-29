@@ -5,9 +5,10 @@
 # traces exactly the node_modules the server needs instead of copying all of
 # them.
 #
-# Build and deploy:
-#   gcloud run deploy gambit-yourmove --source . --region us-central1 \
-#     --set-env-vars GEMINI_API_KEY=...   # or use --set-secrets
+# Build and deploy: ./scripts/deploy.sh
+#   Uses Vertex AI via the runtime service account (no API key in the image).
+#   Vertex location MUST be `global` for the gemini-3.5 family (us-central1
+#   404s); the runtime SA needs roles/aiplatform.user. See scripts/deploy.sh.
 #
 # Deploy something on Day 1, while the app is small. A first deploy attempted
 # on Day 13 is a first deploy attempted under a deadline.
