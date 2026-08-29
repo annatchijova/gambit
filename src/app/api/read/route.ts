@@ -7,6 +7,9 @@ import { isMockMode, READ_FIXTURE } from '@/lib/mock/read_fixture';
 import { CRITICAL_POLICY, callWithPolicy } from '@/lib/resilience';
 import { fieldErrors, readRequestSchema, type ApiErrorBody } from '@/lib/schemas/api_input';
 import { readOutputSchema, type ReadOutput } from '@/lib/schemas/read_schema';
+import { MODELS } from '@/lib/models';
+import { buildReadVerdict } from '@/lib/read_verdict';
+import type { CompositeVerdict } from '@/lib/frameworks';
 import { record } from '@/lib/telemetry';
 
 /**
@@ -23,6 +26,12 @@ import { record } from '@/lib/telemetry';
 export interface ReadResponseBody {
   mode: 'live' | 'mock';
   read: ReadOutput;
+  /**
+   * The composite verdict: the deterministic fleet's sealed, reproducible read
+   * blended with the model's vote (flagged best-effort). The deterministic core
+   * inside it always verifies; see src/lib/frameworks/composite.ts.
+   */
+  verdict: CompositeVerdict;
   meta: { elapsedMs: number; attempts: number };
 }
 
@@ -47,9 +56,12 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (isMockMode()) {
     const elapsedMs = Math.round(performance.now() - startedAt);
     record({ route: 'read', ms: elapsedMs, ok: true, attempts: 0 });
+    // The deterministic fleet is offline, so even the fixture path runs the
+    // real core on the real message and composes the fixture's vote into it.
     return NextResponse.json<ReadResponseBody>({
       mode: 'mock',
       read: READ_FIXTURE,
+      verdict: buildReadVerdict(message, READ_FIXTURE, MODELS.READ),
       meta: { elapsedMs, attempts: 0 },
     });
   }
@@ -121,6 +133,10 @@ export async function POST(request: Request): Promise<NextResponse> {
   return NextResponse.json<ReadResponseBody>({
     mode: 'live',
     read: validated.data,
+    // The model's vote is now folded into the sealed deterministic core. The
+    // fleet ran on the same message with no model in the loop, so the core seal
+    // is independent of anything the model returned.
+    verdict: buildReadVerdict(message, validated.data, MODELS.READ),
     meta: { elapsedMs: outcome.elapsedMs, attempts: outcome.attempts },
   });
 }

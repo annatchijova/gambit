@@ -41,6 +41,11 @@ Rules you must follow:
 6. Work only from the message and the user-supplied context below. Do not invent
    facts about budgets, deadlines, or the counterparty's situation that are not
    present in what you were given.
+7. You are one lens, not the verdict. A deterministic panel of framework
+   analysts reads the same message and casts its own vote independently of you.
+   Your \`manipulationSeverity\` is your vote, and it is shown next to theirs. Do
+   not try to guess or match what they will say — an honest disagreement between
+   you and the rule engine is useful to the user precisely because it is honest.
 `.trim();
 
 function contextBlock(ctx?: UserContextOverride): string {

@@ -55,8 +55,15 @@ export interface SemanticSignal {
    * simply falls back to the deterministic verdict and says so.
    */
   available: boolean;
-  /** Exact severity in [0, 1], snapped to the grid. Zero when unavailable. */
-  severity: Fraction;
+  /**
+   * Exact severity in [0, 1], snapped to the grid, as "numerator/denominator".
+   * A string, not a Fraction, so the whole signal is JSON-serialisable and can
+   * cross the wire — the same flattening FleetVerdict does for its severities.
+   * Parse it back with Fraction.parse for exact arithmetic. Zero when unavailable.
+   */
+  severity: string;
+  /** Rounded percentage for display. Presentation only. */
+  severityPercent: number;
   /** The integer the model returned on the 0..GRID grid, for display/seal. */
   grid: number;
   /** The tactic the model names, in its own words. Empty when unavailable. */
@@ -87,9 +94,11 @@ export function semanticVote(args: {
   model: string;
 }): SemanticSignal {
   const grid = Math.max(0, Math.min(SEMANTIC_GRID, Math.round(args.grid)));
+  const severity = severityFromGrid(grid);
   return {
     available: true,
-    severity: severityFromGrid(grid),
+    severity: severity.toString(),
+    severityPercent: severity.toPercent(),
     grid,
     tactic: args.tactic,
     evidence: args.evidence,
@@ -103,7 +112,15 @@ export function semanticVote(args: {
  * optional component degrades the feature, never the core.
  */
 export function unavailableSemantic(model: string): SemanticSignal {
-  return { available: false, severity: Fraction.ZERO, grid: 0, tactic: '', evidence: [], model };
+  return {
+    available: false,
+    severity: Fraction.ZERO.toString(),
+    severityPercent: 0,
+    grid: 0,
+    tactic: '',
+    evidence: [],
+    model,
+  };
 }
 
 /** Re-export so composite consumers have one import site for the level type. */

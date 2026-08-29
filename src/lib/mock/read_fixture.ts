@@ -18,6 +18,7 @@ import type { ReadOutput } from '../schemas/read_schema';
 export const READ_FIXTURE: ReadOutput = {
   likelyTactic: 'Manufactured urgency',
   confidence: 'Medium',
+  manipulationSeverity: 13,
   evidence: [
     'I need an answer by end of day tomorrow',
     'this is really the best we can do',

@@ -77,6 +77,14 @@ export const readOutputSchema = z.object({
     .describe(
       'High only when the message contains explicit, quotable evidence for the tactic. Medium when the reading is supported but the message is short or mixed. Low when you are inferring from tone or from very little text. Prefer Low over High when unsure — a wrong High is more damaging to the user than an honest Low.',
     ),
+  manipulationSeverity: z
+    .number()
+    .int()
+    .min(0)
+    .max(20)
+    .describe(
+      'Your independent numeric vote, an integer 0-20, on how manipulative this message is AS A NEGOTIATION TACTIC. 0 is a plain, cooperative, information-only message; 20 is a message built almost entirely from pressure tactics (manufactured urgency, guilt, borrowed authority, ultimatum, ulterior framing). Rate what the message DOES, not how you feel about the sender. This vote is cast alongside a deterministic rule engine that votes separately; the two are shown side by side, so an honest estimate is worth more than a confident one. When in doubt, rate lower.',
+    ),
   evidence: z
     .array(
       z

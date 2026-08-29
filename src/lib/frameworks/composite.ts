@@ -100,7 +100,7 @@ function sealOf(
       ? {
           available: semantic.available,
           grid: semantic.grid,
-          severity: semantic.severity.toString(),
+          severity: semantic.severity,
           tactic: semantic.tactic,
           evidence: semantic.evidence,
           model: semantic.model,
@@ -144,14 +144,15 @@ export function composeVerdict(
 
   // --- Model voted: blend, classify, and flag best_effort. ------------------
   const coreScore = Fraction.parse(core.score);
+  const semanticScore = Fraction.parse(semantic.severity);
   const blended = coreScore
     .mul(Fraction.ONE.sub(SEMANTIC_WEIGHT))
-    .add(semantic.severity.mul(SEMANTIC_WEIGHT))
+    .add(semanticScore.mul(SEMANTIC_WEIGHT))
     .clamp01();
 
   const level = levelFor(blended);
   const coreLevel = core.level;
-  const semanticLevel = levelFor(semantic.severity);
+  const semanticLevel = levelFor(semanticScore);
   const agree = coreLevel === semanticLevel;
 
   // Confidence follows agreement, not magnitude: two independent methods
