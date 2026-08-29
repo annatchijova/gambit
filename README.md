@@ -198,4 +198,4 @@ Gemini 3.5 Flash and 3.5 Flash-Lite · Cloud Run · Vitest
 
 ## Licence
 
-Not yet chosen.
+[Apache License 2.0](LICENSE). Copyright 2026 Anna Tchijova.
