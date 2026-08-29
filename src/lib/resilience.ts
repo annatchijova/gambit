@@ -40,7 +40,14 @@ export const TIMEOUTS = {
    * Critical path — the user is on screen, blocked, waiting.
    * READ, THINK, TRAIN/Adversary.
    */
-  CRITICAL_MS: 3_500,
+  /**
+   * Critical path — user on screen, blocked. Set from REAL telemetry, not a
+   * guess: a live structured READ via Vertex (gemini-3.5-flash, global) measured
+   * ~10-14 s warm on 2026-08-29 (docs/journal.md). The original 3.5 s target was
+   * an untested aspiration and timed out every real call. 20 s leaves margin over
+   * the observed p95 without letting a genuinely stuck call hang forever.
+   */
+  CRITICAL_MS: 20_000,
   /**
    * Non-blocking path — result renders after the critical response.
    * TRAIN/Coach, SCORE narration.

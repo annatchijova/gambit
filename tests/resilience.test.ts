@@ -13,8 +13,10 @@ const fixedRand = () => 0.5;
 const noDelay = vi.fn(async () => {});
 
 describe('policy constants match the architecture doc', () => {
-  it('uses 3.5 s on the critical path and 5.0 s in the background', () => {
-    expect(TIMEOUTS.CRITICAL_MS).toBe(3_500);
+  it('uses 20 s on the critical path and 5.0 s in the background', () => {
+    // CRITICAL_MS was raised from an untested 3.5 s aspiration to 20 s after a
+    // live structured READ via Vertex measured ~10-14 s (see docs/journal.md).
+    expect(TIMEOUTS.CRITICAL_MS).toBe(20_000);
     expect(TIMEOUTS.BACKGROUND_MS).toBe(5_000);
   });
 
