@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { ReadCard } from '@/components/ReadCard';
+import { FleetPanel } from '@/components/FleetPanel';
 import type { ReadOutput } from '@/lib/schemas/read_schema';
+import type { CompositeVerdict } from '@/lib/frameworks';
 
 /**
  * READ screen — one screen, one idea.
@@ -15,6 +17,7 @@ import type { ReadOutput } from '@/lib/schemas/read_schema';
 interface ReadResponse {
   mode: 'live' | 'mock';
   read: ReadOutput;
+  verdict: CompositeVerdict;
   meta: { elapsedMs: number; attempts: number };
 }
 
@@ -59,9 +62,9 @@ export default function Home() {
   const busy = status.phase === 'reading';
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-8 px-6 py-16">
+    <main className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-8 px-6 py-16">
       <header>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/35">
+        <p className="brand-text text-[11px] font-semibold uppercase tracking-[0.24em]">
           GAMBIT YourMove
         </p>
         <h1 className="mt-2 text-2xl font-medium tracking-tight text-white">
@@ -121,6 +124,7 @@ export default function Home() {
 
       {status.phase === 'done' && (
         <>
+          <FleetPanel verdict={status.data.verdict} />
           <ReadCard read={status.data.read} mode={status.data.mode} />
           <p className="text-xs tabular-nums text-white/25">
             {status.data.meta.elapsedMs} ms · {status.data.meta.attempts} attempt
