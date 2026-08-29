@@ -9,6 +9,7 @@
 export {
   runFleet,
   verifyFleetSeal,
+  levelFor,
   CORROBORATION_THRESHOLD,
   FLEET_SCHEMA_VERSION,
   FLEET_SEAL_VERSION,
@@ -18,3 +19,20 @@ export {
   type SealedSignal,
 } from './fleet';
 export { FRAMEWORK_NAMES, type FrameworkName, type FrameworkSignal } from './types';
+export {
+  severityFromGrid,
+  semanticVote,
+  unavailableSemantic,
+  SEMANTIC_GRID,
+  SEMANTIC_WEIGHT,
+  type SemanticSignal,
+} from './semantic';
+export {
+  composeVerdict,
+  verifyCompositeSeal,
+  COMPOSITE_SCHEMA_VERSION,
+  COMPOSITE_SEAL_VERSION,
+  type CompositeVerdict,
+  type DeterminismLevel,
+  type Divergence,
+} from './composite';

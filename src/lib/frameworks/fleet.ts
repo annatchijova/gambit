@@ -131,7 +131,12 @@ function toSealed(sig: FrameworkSignal): SealedSignal {
   };
 }
 
-function levelFor(score: Fraction): FleetLevel {
+/**
+ * Map an aggregate score to a verdict level. Exported so the composite layer
+ * (which folds in the semantic LLM vote) classifies on the same thresholds the
+ * deterministic core uses — one scale, one place to change it.
+ */
+export function levelFor(score: Fraction): FleetLevel {
   if (score.gte(T_MANIPULATIVE)) return 'MANIPULATIVE';
   if (score.gte(T_PERSUASIVE)) return 'PERSUASIVE';
   if (score.gte(T_MIXED)) return 'MIXED';

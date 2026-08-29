@@ -70,6 +70,20 @@ export class Fraction {
   static readonly ZERO = Fraction.of(0n);
   static readonly ONE = Fraction.of(1n);
 
+  /**
+   * Rebuild a fraction from its canonical "numerator/denominator" string — the
+   * inverse of `toString()`. Used to recover an exact sealed score for further
+   * exact arithmetic (e.g. composing a verdict) without ever passing through a
+   * float. Throws on anything that is not two integers separated by a slash.
+   */
+  static parse(s: string): Fraction {
+    const m = /^(-?\d+)\/(-?\d+)$/.exec(s.trim());
+    if (!m) {
+      throw new RangeError(`[fraction] not a canonical fraction: ${JSON.stringify(s)}`);
+    }
+    return Fraction.of(BigInt(m[1]), BigInt(m[2]));
+  }
+
   add(o: Fraction): Fraction {
     return Fraction.of(this.n * o.d + o.n * this.d, this.d * o.d);
   }
