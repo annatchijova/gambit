@@ -9,26 +9,41 @@ not decide anything on your behalf.
 
 > AI increases agency. It does not replace it.
 
+**Live:** <https://gambit-yourmove-1028999311218.us-central1.run.app>
+
 ---
 
 ## Status
 
-Day 1 of a 14-day build. **READ** is implemented end-to-end; **THINK**,
-**TRAIN** and **SCORE** are not yet built and are deliberately absent from the
-interface rather than stubbed, so nothing on screen promises a capability that
-does not exist.
+Day 3 of a 14-day build. **READ** is implemented end-to-end and deployed to
+Cloud Run on Vertex AI. **THINK**, **TRAIN** and **SCORE** are not built and
+are deliberately absent from the interface rather than stubbed, so nothing on
+screen promises a capability that does not exist.
 
-The deterministic state engine that TRAIN depends on
-(`src/lib/state_rules.ts`) is complete and tested ahead of schedule, because
-it has no dependency on the network, on a key, or on the SDK.
+What is settled, and how:
+
+- Live model access is **confirmed**, not assumed — `npm run verify:model`
+  against Vertex AI returned successfully for both `gemini-3.5-flash` and
+  `gemini-3.5-flash-lite` (evidence in [`docs/model_access.md`](docs/model_access.md)).
+- READ no longer relies on the model for its verdict. A deterministic fleet of
+  four framework lenses reads the message and **seals** a verdict before any
+  model is called; the model votes beside it. See
+  [The architecture](#the-architecture-the-model-does-not-decide-anything).
+- The deterministic state engine TRAIN will depend on
+  (`src/lib/state_rules.ts`) is complete and tested ahead of schedule, because
+  it has no dependency on the network, on a key, or on the SDK.
+
+What is still open is listed under [Known gaps](#known-gaps) — including two
+things the live runs falsified, which are the honest reason some numbers in
+this README differ from earlier drafts.
 
 ## Spin-up
 
 Requires **Node 22 or newer**.
 
 ```bash
-git clone <repository-url>
-cd gambit-yourmove
+git clone https://github.com/annatchijova/gambit.git
+cd gambit
 npm install
 cp .env.example .env.local
 ```
@@ -42,7 +57,7 @@ Then pick a backend and put it in `.env.local`.
 GEMINI_API_KEY=...
 ```
 
-**Vertex AI** — better for the Cloud Run deployment, because the service
+**Vertex AI** — what the Cloud Run deployment uses, because the service
 authenticates with its own service account and no API key ever sits in an
 environment variable:
 
@@ -54,8 +69,14 @@ gcloud services enable aiplatform.googleapis.com --project <your-project>
 ```bash
 GOOGLE_GENAI_USE_VERTEXAI=true
 GOOGLE_CLOUD_PROJECT=your-project-id
-GOOGLE_CLOUD_LOCATION=us-central1
+GOOGLE_CLOUD_LOCATION=global
 ```
+
+**The location must be `global`.** The `gemini-3.5-*` family this app pins is
+served only from the global Vertex endpoint; a regional location such as
+`us-central1` returns `404 Publisher model ... not found` and every call fails.
+This was established by probing both endpoints directly on 2026-08-29, after
+the regional default had been wrong in an earlier version of this file.
 
 **Confirm the backend works before writing anything else.** This is one call
 per model and it either passes or it tells you exactly what is wrong:
@@ -74,16 +95,25 @@ GAMBIT_MOCK=true npm run dev
 Fixture mode is opt-in only. It is never entered because a key is missing or a
 call failed — those surface as errors. Every response is tagged
 `mode: "mock"` and the interface shows a visible badge, so a fixture can never
-be mistaken for a live read.
+be mistaken for a live read. The deterministic fleet still runs on your real
+message even in fixture mode; only the model's half is stored.
 
 ### Verify the checkout
 
 ```bash
+npm run build            # once — see below
 npm run verify           # typecheck + lint + docs freshness + classifier regression + tests
 ```
 
+`npm run build` (or a single `npm run dev`) is required **before the first**
+`npm run verify` on a fresh clone: `src/app/layout.tsx` uses Next 16's generated
+`LayoutProps` type, which only exists in `.next/types` after a build, so
+`typecheck` fails on an unbuilt checkout. Everything else in `verify` is
+self-contained.
+
 Nothing in `verify` touches the network, so it runs the same on a laptop, in
-CI and on a plane.
+CI and on a plane. It currently reports **78 tests across 6 files**, and
+`calibrate:rules` **21/21** on the authored corpus.
 
 ### Calibrate
 
@@ -95,10 +125,11 @@ npm run calibrate:read   # READ over 15 real messages (needs `npm run dev` runni
 ```
 
 `calibrate:rules` reports the authored and field corpora **separately and
-never averages them**. Agreement on the authored corpus says the engine
+never averages them**. Agreement on the authored corpus (21/21) says the engine
 behaves as specified — it is a refactor guard. Only the field corpus, made of
-messages a real user typed, can say anything about accuracy, and it starts
-empty.
+messages a real user typed, can say anything about accuracy, and it is still
+empty. `docs/classifier_report.md` is generated from this run and says the same
+thing at more length.
 
 `calibrate:read` runs the full HTTP route and writes
 `docs/read_test_log.md` with a blank verdict line per case. It deliberately
@@ -110,12 +141,18 @@ back **Low**. If either returns High, the uncertainty layer is decorative.
 ### Deploy to Cloud Run
 
 ```bash
-gcloud run deploy gambit-yourmove \
-  --source . \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --set-env-vars GEMINI_API_KEY=your-key    # or --set-secrets for a real secret
+./scripts/deploy.sh
 ```
+
+The script is the deploy, rather than a command in this file, because two
+things about it are non-obvious and were learned the hard way: the Vertex
+location must be `global` (independent of the Cloud Run `--region`), and the
+runtime service account needs `roles/aiplatform.user` or the service
+authenticates fine and then has every model call denied. It ships no API key —
+the container authenticates as its own service account.
+
+Override the defaults with `GAMBIT_PROJECT`, `GAMBIT_REGION` and
+`GAMBIT_SERVICE`.
 
 ## Architecture
 
@@ -123,32 +160,66 @@ Four modules. Only the first is built.
 
 | Module | Does | Status |
 |---|---|---|
-| **READ** | Names the tactic in an inbound message, with calibrated confidence, quoted evidence and competing readings | Built |
+| **READ** | Names the tactic in an inbound message: a sealed deterministic verdict from four framework lenses, the model's independent vote beside it, quoted evidence, calibrated confidence and competing readings | Built |
 | **THINK** | Three strategic replies — soft, tactical, direct — shaped by the user's own voice profile and red lines | Phase 1B |
 | **TRAIN** | Practice against a simulated counterparty that adapts, with asynchronous coaching | Phase 1C |
 | **SCORE** | A negotiation score across four axes, computed from the transition log | Phase 1D |
 
-### The part that matters: the model does not decide anything
+### The architecture: the model does not decide anything
 
-The counterparty's model of the negotiation — `perceivedUserLeverage`,
-`trust`, `patience` — is never updated by a language model.
+This is the one load-bearing decision in the project, and it now applies to the
+shipped READ path, not just to the unbuilt TRAIN one.
 
-Every user move is classified by a deterministic rule engine
-(`src/lib/state_rules.ts`). The engine computes the next state, seals the
-transition with a SHA-256 that chains to the previous one, and hands the
-result to the Adversary agent as an established fact. The agent's only job is
-to phrase a reply consistent with a state it cannot change. It is given no
-tool that can write those values back.
+**A deterministic fleet seals the verdict first.** Four lenses read the raw
+message with no model in the loop — each looks for the manipulation signature
+its framework describes and must quote a verbatim span to claim anything:
 
-The consequence is that every number on screen can be traced to a named rule,
-and any session can be replayed to a bit-identical result. See
+| Lens | Reads for | Weight |
+|---|---|---|
+| Cialdini & Carnegie | Influence tactics — scarcity, reciprocity, social proof | 3/10 |
+| Aristotle | Rhetorical imbalance — pathos crowding out logos | 1/4 |
+| Grice | Violations of the Cooperative Principle | 1/4 |
+| Berne | Transactional Analysis — ulterior transactions | 1/5 |
+
+Their weighted aggregate is computed in **exact rational arithmetic**
+(`src/lib/fraction.ts`) — no float ever touches a sealed value — and passed
+through a **corroboration gate**: a single lens firing is noise, so a non-clean
+verdict requires at least two independent lenses to agree, and below that the
+verdict is forced clean no matter how loud one lens is. The result is sealed
+with a SHA-256 over its canonical payload, computed before any model call.
+
+**Then the model votes beside it.** Gemini reads the same message and returns,
+among its narrative, one severity on a coarse 0–20 grid. That vote is folded
+into a **composite** verdict at weight 2/5 — enough to move a verdict, and to
+raise an alert the lexical lenses missed, never enough to silently override a
+strong deterministic consensus.
+
+**And the split is shown, not averaged.** Where the rule engine and the model
+disagree, the panel says so in those words. A rule engine and a language model
+reading the same message differently is a signal to the user, not noise to
+smooth over.
+
+Every composite carries an honest determinism level: `deterministic_core` when
+the model did not vote (replayable bit-for-bit) or `best_effort_with_semantic`
+when it did (`requiresRebuild: true`, **not** claimed replayable). The two can
+never be confused by a reader or by a downstream check.
+
+The same discipline governs the state engine that TRAIN will use. The
+counterparty's model of the negotiation — `perceivedUserLeverage`, `trust`,
+`patience` — is never updated by a language model. Every user move is classified
+by a deterministic rule engine (`src/lib/state_rules.ts`), which computes the
+next state, seals the transition with a SHA-256 chained to the previous one, and
+hands the result to the Adversary agent as an established fact. The agent's only
+job is to phrase a reply consistent with a state it cannot change; it is given no
+tool that can write those values back. See
 [`docs/state_rules.md`](docs/state_rules.md) — generated from the code, so it
 cannot drift from it.
 
-**What is claimed, precisely.** The engine is *deterministic*: same message,
-same prior state, same result, on any machine. That is tested. The engine is
-not claimed to be *accurate* — whether its labels match a human negotiation
-coach's has not been measured. Determinism and accuracy are different
+**What is claimed, precisely.** Both engines are *deterministic*: same message,
+same prior state, same result, same seal, on any machine. That is tested. Neither
+is claimed to be *accurate* — whether their labels match a human negotiation
+coach's has not been measured, and the field corpus that could measure it is
+empty. The lenses are lexical heuristics. Determinism and accuracy are different
 properties and only one of them is in evidence.
 
 ### Failure is visible, never silent
@@ -159,10 +230,15 @@ normally. A straightforward implementation would report a 403 as a successful
 run that produced an empty string, and render a blank but confident-looking
 card.
 
-Every call therefore runs under an explicit policy — 3.5 s on the critical
-path, 5.0 s in the background, one retry with full jitter — and returns a
-typed `Outcome` that forces the caller to handle the failure branch. When the
-model does not answer, the user is told the model did not answer.
+Every call therefore runs under an explicit policy — 20 s on the critical path,
+5 s in the background, one retry with full jitter — and returns a typed
+`Outcome` that forces the caller to handle the failure branch. When the model
+does not answer, the user is told the model did not answer, and the
+deterministic verdict still stands on its own.
+
+The 20 s critical timeout is measured, not chosen: a live structured READ
+through Vertex measured ~10–14 s warm on 2026-08-29. The original 3.5 s target
+was an untested aspiration that timed out every real call.
 
 ### Layout
 
@@ -170,13 +246,28 @@ model does not answer, the user is told the model did not answer.
 src/
   app/
     api/read/route.ts        request boundary, policy, response re-validation
-    page.tsx                 READ screen
-  components/ReadCard.tsx    result card with the uncertainty layer
+    page.tsx                 landing + READ screen
+    architecture/page.tsx    "how it works"
+    layout.tsx               nav / footer shell
+  components/
+    ReadCard.tsx             the model's reading, with the uncertainty layer
+    FleetPanel.tsx           per-lens severities, core-vs-model divergence, seal strip
+    PipelineDiagram.tsx      seal-then-narrate pipeline, drawn
+    Examples.tsx             one-click sample messages, including a clean control
+    Nav.tsx Footer.tsx site.ts
+    verdict_ui.ts            presentation only: colours, labels, glosses
   lib/
+    frameworks/
+      fleet.ts               the fleet: run, corroboration gate, seal, verify
+      grice.ts cialdini.ts aristotle.ts berne.ts    the four lenses
+      semantic.ts            the model's vote — the pure, testable half
+      composite.ts           core + vote → composite verdict and divergence
+    fraction.ts              exact rational arithmetic; no float reaches a seal
+    read_verdict.ts          assembles one message's composite verdict
+    state_rules.ts           the deterministic state engine (for TRAIN)
     models.ts                single source of truth for model IDs
     env.ts                   credential boundary
     types.ts                 NegotiationState, VoiceProfile
-    state_rules.ts           the deterministic engine
     resilience.ts            timeout, retry, honest degradation
     telemetry.ts             latency samples for the Day 5 / Day 13 measurements
     schemas/                 Zod contracts, in and out
@@ -186,15 +277,43 @@ docs/
   day-01-spike.md            what the spike established, and how
   journal.md                 running log; source for the submission write-up
   state_rules.md             GENERATED from state_rules.ts
-tests/                       40 tests: determinism, precedence, chain, policy
-scripts/                     doc generator
+  classifier_report.md       GENERATED by calibrate:rules
+  model_access.md            GENERATED by verify:model
+corpus/
+  read_messages.json         15 READ cases, incl. low-signal and adversarial
+  user_moves.json            21 authored classifier cases, 0 field cases
+tests/                       78 tests: determinism, precedence, chain, gate, policy
+scripts/                     doc generator, model probe, calibration, deploy
 ```
+
+## Known gaps
+
+Kept here rather than in the write-up, so the list is visible to anyone reading
+the code.
+
+- **THINK, TRAIN and SCORE are not built.** Phases 1B–1D.
+- **No accuracy claim is available.** The field corpus is empty, so nothing in
+  this repository licenses a statement about whether either engine labels
+  messages the way a human coach would.
+- **The lexical lenses under-match real phrasing.** On a live read of a
+  blatantly manipulative message, the fleet returned CLEAN (only Aristotle
+  fired) while the model returned MANIPULATIVE 16/20: the patterns require
+  contractions and adjacency that real messages do not have. The divergence
+  panel surfaced the split correctly — the architecture working as designed —
+  but broadening the Cialdini / Grice / Berne lexicons is the next quality task.
+- **Latency is ~10–14 s warm on the critical path.** Acceptable behind a real
+  loading state, but the structured-output schema is the lever if it has to come
+  down.
+- **`npm run verify` needs one build first** on a fresh clone (see above).
+- **Sessions are in-memory.** `InMemorySessionService` is per-instance and lost
+  on restart — correct for a single-instance demo, and the first thing to swap
+  for `DatabaseSessionService` if this ever runs multi-instance.
 
 ## Stack
 
 Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 ·
 [Google ADK for TypeScript](https://github.com/google/adk-js) ·
-Gemini 3.5 Flash and 3.5 Flash-Lite · Cloud Run · Vitest
+Gemini 3.5 Flash and 3.5 Flash-Lite · Vertex AI · Cloud Run · Vitest
 
 ## Licence
 
