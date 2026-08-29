@@ -47,12 +47,32 @@ export const LEVEL_STYLE: Record<FleetLevel, LevelStyle> = {
   },
 };
 
+/** Solid accent colour for a card's top edge, by level. */
+export const LEVEL_BAR: Record<FleetLevel, string> = {
+  CLEAN: 'bg-emerald-400/70',
+  MIXED: 'bg-amber-400/80',
+  PERSUASIVE: 'bg-orange-400/80',
+  MANIPULATIVE: 'bg-rose-400/90',
+};
+
 /** Score-bar threshold marks, matching the engine's level thresholds. */
 export const LEVEL_TICKS: Array<{ at: number; label: FleetLevel }> = [
   { at: 25, label: 'MIXED' },
   { at: 50, label: 'PERSUASIVE' },
   { at: 75, label: 'MANIPULATIVE' },
 ];
+
+/**
+ * Classify a display percentage into a level, on the same thresholds the engine
+ * uses. Presentation only — for colouring an individual agent card by its own
+ * severity. The authoritative levels come sealed from the server.
+ */
+export function levelFromPercent(pct: number): FleetLevel {
+  if (pct >= 75) return 'MANIPULATIVE';
+  if (pct >= 50) return 'PERSUASIVE';
+  if (pct >= 25) return 'MIXED';
+  return 'CLEAN';
+}
 
 export interface FrameworkMeta {
   /** Single-glyph badge for the agent grid. */
