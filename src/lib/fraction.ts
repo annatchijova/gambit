@@ -11,11 +11,10 @@
  * average is a division. Division of integers is where floats — and with them
  * non-determinism — would enter a sealed value.
  *
- * Python's sibling projects (ARGOS, corvus, wolf-and-cronos) solve this with
- * `fractions.Fraction`: every severity, weight and aggregate is an exact
- * numerator/denominator pair, so the same inputs produce the same rational
- * bit-for-bit, and the seal over it is stable across machines and Node
- * versions. TypeScript has no such type, so this is it.
+ * Python solves this with `fractions.Fraction`: every severity, weight and
+ * aggregate is an exact numerator/denominator pair, so the same inputs produce
+ * the same rational bit-for-bit, and the seal over it is stable across
+ * machines and Node versions. TypeScript has no such type, so this is it.
  *
  * INVARIANT: no value that reaches a fleet seal is ever a JS `number` produced
  * by division. `toNumber()` exists for the presentation layer ONLY and is

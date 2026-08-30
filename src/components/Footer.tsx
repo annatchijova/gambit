@@ -1,12 +1,11 @@
 import Link from 'next/link';
-import { LINEAGE, REPO_URL, STACK } from './site';
+import { REPO_URL, STACK } from './site';
 
 /**
  * GAMBIT YourMove — footer.
  *
  * Carries the one line that is the whole thesis, the stack (so a judge can see
- * the Gemini/Vertex/ADK requirement met at a glance), the lineage the
- * architecture is ported from, and the source + licence.
+ * the Gemini/Vertex/ADK requirement met at a glance), and the source + licence.
  */
 
 export function Footer() {
@@ -29,16 +28,6 @@ export function Footer() {
             </span>
           ))}
         </div>
-
-        <p className="mt-5 font-mono text-[11px] text-text-faint">
-          Ported from{' '}
-          {LINEAGE.map((l, i) => (
-            <span key={l.name}>
-              <span className="text-text-faint">{l.name}</span>
-              {i < LINEAGE.length - 1 ? ' · ' : ''}
-            </span>
-          ))}
-        </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-faint">
           <a href={REPO_URL} target="_blank" rel="noopener noreferrer" className="transition hover:text-text">

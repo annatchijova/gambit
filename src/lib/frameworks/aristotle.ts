@@ -12,7 +12,7 @@ import { collectEvidence, verbatim, type CategoryHit } from './lexical';
  * without giving you a reason it is urgent is doing rhetoric to you, not
  * argument with you.
  *
- * Ported from ARGOS's Aristotle detector and corvus/wolf-and-cronos L3. Unlike
+ * Unlike
  * the additive lenses, this one is a BALANCE computation: logos present is a
  * mitigator that lowers the severity, because a reasoned message is exactly
  * what an honest counterparty sends. Exact rationals throughout.

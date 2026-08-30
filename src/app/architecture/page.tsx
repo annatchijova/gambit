@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { PipelineDiagram } from '@/components/PipelineDiagram';
-import { LINEAGE } from '@/components/site';
 
 export const metadata: Metadata = {
   title: 'How it works — GAMBIT YourMove',
@@ -111,22 +110,6 @@ export default function Architecture() {
             </div>
           ))}
         </div>
-      </section>
-
-      <section className="rounded-sm border border-ink-line bg-ink-raised p-6">
-        <h2 className="label">Lineage</h2>
-        <p className="mt-2 max-w-2xl text-sm text-text-dim">
-          The architecture is ported from a family of deterministic manipulation-detection tools — the same
-          DNA, applied to negotiation:
-        </p>
-        <ul className="mt-3 space-y-1.5">
-          {LINEAGE.map((l) => (
-            <li key={l.name} className="flex items-baseline gap-3 text-sm">
-              <span className="font-mono font-semibold text-text">{l.name}</span>
-              <span className="text-text-faint">{l.note}</span>
-            </li>
-          ))}
-        </ul>
       </section>
 
       <div>

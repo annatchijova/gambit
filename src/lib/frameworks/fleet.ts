@@ -18,10 +18,9 @@ import { fleetSealInput } from './seal_payload';
  *
  * A deterministic fleet of theoretical lenses reads one inbound message and the
  * fleet SEALS a verdict about it — before any language model is called. This is
- * the same architecture as the state engine (state_rules.ts) and the same
- * architecture as the sibling projects it is ported from (ARGOS, corvus,
- * wolf-and-cronos): the machinery that decides is deterministic and auditable;
- * the model only narrates what was decided and cannot change it.
+ * the same architecture as the state engine (state_rules.ts): the machinery
+ * that decides is deterministic and auditable; the model only narrates what was
+ * decided and cannot change it.
  *
  * The three properties this file is built to guarantee, all tested:
  *
@@ -31,8 +30,8 @@ import { fleetSealInput } from './seal_payload';
  *
  *   2. CORROBORATION. A single lens firing is noise. A non-CLEAN verdict
  *      requires at least CORROBORATION_THRESHOLD lenses to agree, independently.
- *      This is the gate ported verbatim in spirit from wolf-and-cronos: below
- *      threshold, the verdict is forced CLEAN no matter how loud one lens is.
+ *      Below threshold, the verdict is forced CLEAN no matter how loud one
+ *      lens is.
  *
  *   3. HONEST DEGRADATION. A lens that throws is recorded as crashed and simply
  *      does not vote. One broken analyser degrades coverage; it never fabricates
@@ -198,7 +197,7 @@ export function runFleet(raw: string): FleetVerdict {
     score = weightedSum.div(totalWeight);
 
     // Convergence bonus: independent lenses landing above the significance line
-    // corroborate each other. Ported from ARGOS/corvus.
+    // corroborate each other.
     const significant = active.filter((s) => s.severity.gte(SIGNIFICANT)).length;
     if (significant >= 3) score = score.add(Fraction.of(1, 8));
     else if (significant >= 2) score = score.add(Fraction.of(1, 16));

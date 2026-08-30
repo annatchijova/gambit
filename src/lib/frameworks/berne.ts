@@ -12,7 +12,7 @@ import { collectEvidence, runCategories, severityFromHits, type Category } from 
  * extract a concession. "With all due respect, but..." is the classic tell:
  * the courtesy is there precisely to license what follows it.
  *
- * Ported from corvus/wolf-and-cronos L4. The lens flags critical-Parent
+ * The lens flags critical-Parent
  * condescension, ulterior "polite pressure" frames, and adaptive-Child guilt
  * plays — the three that show up when someone wants leverage without asking
  * for it in the open.

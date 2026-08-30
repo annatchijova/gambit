@@ -7,9 +7,7 @@ import type { Fraction } from '../fraction';
  * message: it looks for the manipulation signature its framework describes and
  * reports what it found, how strongly, and the verbatim spans that made it say
  * so. Nothing here calls a model. The lenses are deterministic lexical
- * analysers, ported from the sibling projects (ARGOS's 11 philosophers,
- * corvus / wolf-and-cronos's six layers), so their combined verdict can be
- * sealed and replayed. The language model narrates that verdict downstream; it
+ * analysers, so their combined verdict can be sealed and replayed. The language model narrates that verdict downstream; it
  * never produces it.
  */
 

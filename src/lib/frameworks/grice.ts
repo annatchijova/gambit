@@ -11,7 +11,7 @@ import { collectEvidence, runCategories, severityFromHits, type Category } from 
  * something under the surface — evasion, obfuscation, deflection. In a
  * negotiation that is rarely accidental.
  *
- * Ported from corvus/wolf-and-cronos L1. Lexical and deterministic: it flags
+ * Lexical and deterministic: it flags
  * the maxim-violation vocabulary, quotes it, and reports how much of it is
  * present. It does not claim to have understood the message — only that these
  * specific evasion signatures are or are not in the text.

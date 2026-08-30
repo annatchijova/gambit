@@ -173,17 +173,42 @@ the container authenticates as its own service account.
 Override the defaults with `GAMBIT_PROJECT`, `GAMBIT_REGION` and
 `GAMBIT_SERVICE`.
 
-## Architecture
+## What is built
 
-Four modules. Only the first is built.
+Two things, both working end to end and deployed.
 
-| Module | Does | Status |
-|---|---|---|
-| **READ** | Names the tactic in an inbound message: a sealed deterministic verdict from four framework lenses, the model's independent vote beside it, quoted evidence, calibrated confidence and competing readings | Built |
-| **ASK** | Follow-up questions about a verdict that is already sealed. The model explains it and cannot revise it, draft a reply, or decide anything | Built |
-| **THINK** | Three strategic replies — soft, tactical, direct — shaped by the user's own voice profile and red lines | Phase 1B |
-| **TRAIN** | Practice against a simulated counterparty that adapts, with asynchronous coaching | Phase 1C |
-| **SCORE** | A negotiation score across four axes, computed from the transition log | Phase 1D |
+**The read.** You paste one inbound message. Four deterministic lenses examine
+it with no model in the loop, and the fleet seals a verdict. Then Gemini reads
+the same message and votes beside the rules. You get the message back with each
+finding underlined in place, the verdict, how sure it is, and — where the rules
+and the model disagree — the disagreement stated rather than averaged.
+
+**The questions.** You can ask Gemini about that verdict: why one lens fired and
+another did not, what a split means. It explains and cannot revise. The seal
+still verifies after any amount of conversation.
+
+## What is not built
+
+Listed separately from the above on purpose: nothing here exists, and nothing on
+screen promises it.
+
+| Next | What it would add |
+|---|---|
+| **Drafting** | Reply options in the user's own voice, shaped by their red lines. The user still chooses and still sends. |
+| **Legal reading** | Longer documents rather than one message, and clause-level patterns rather than negotiation tactics. A different input size and a different lexicon — see the note below. |
+| **Practice** | A simulated counterparty that adapts, with coaching afterwards. The deterministic engine it runs on is already written and tested (`src/lib/state_rules.ts`). |
+| **Scoring** | A negotiation score across four axes, computed from the transition log. |
+
+**On drafting.** It changes a promise this interface currently makes in three
+places — "it does not write your reply". That line was never about refusing to
+be useful; it was about who decides. When drafting ships, the promise becomes
+"GAMBIT drafts options, you choose and you send", and the copy has to be
+rewritten to say so rather than quietly contradicted.
+
+**On legal.** The read is capped at 4,000 characters — that is a message, not a
+contract — and every lens looks for negotiation tactics, not clauses. Pointing
+this at legal documents is a second lexicon and a second input path, not a
+setting. Worth doing; worth costing honestly first.
 
 ### The architecture: the model does not decide anything
 
@@ -332,7 +357,10 @@ src/
     fraction.ts              exact rational arithmetic; no float reaches a seal
     read_verdict.ts          assembles one message's composite verdict
     ask_prompt.ts            renders the sealed verdict as read-only fact
-    state_rules.ts           the deterministic state engine (for TRAIN)
+    state_rules.ts           the deterministic state engine. Only its
+                             normalise/hash helpers are on a request path; the
+                             rule table and transition chain are written ahead
+                             for practice mode and run only in tests
     models.ts                single source of truth for model IDs
     env.ts                   credential boundary
     types.ts                 NegotiationState, VoiceProfile

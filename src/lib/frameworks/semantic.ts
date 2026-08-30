@@ -11,8 +11,8 @@ import type { FleetLevel } from './fleet';
  * The deterministic fleet (fleet.ts) catches manipulation it has lexical
  * patterns for. It is blind to paraphrase, to implication, to a tactic phrased
  * in words no rule anticipated. A language model is not — so here the model
- * earns a seat at the table as one more analyst, exactly as ARGOS gives Gemini
- * a weighted vote alongside its eleven philosophers.
+ * earns a seat at the table as one more analyst, with a weighted vote alongside
+ * the rules.
  *
  * But a model vote is NOT reproducible. Two runs of the same message can return
  * different severities, so any score that includes it cannot be sealed and
@@ -35,14 +35,13 @@ import type { FleetLevel } from './fleet';
  * The grid the model's severity is snapped to. The model is asked for an
  * integer 0..GRID; we store it as Fraction(grid, GRID). A coarse grid is
  * deliberate: it signals that this number is an estimate, not a measurement,
- * and it keeps the composite seal stable for a GIVEN model output. Matches
- * ARGOS's round(score * 20) / 20.
+ * and it keeps the composite seal stable for a GIVEN model output.
  */
 export const SEMANTIC_GRID = 20;
 
 /**
  * How much the semantic vote weighs in the composite blend, as an exact
- * rational. 2/5 mirrors ARGOS's heavy-but-not-dominant Gemini weight: enough
+ * rational. 2/5 is heavy but not dominant: enough
  * for the model to move the verdict and to raise an alert the lexical lenses
  * missed, never enough to silently override a strong deterministic consensus.
  */
