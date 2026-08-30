@@ -116,7 +116,7 @@ git-ignored, `tsc` alone fails on any clean checkout. `typegen` costs well under
 a second, so `verify` stays cheap.
 
 Nothing in `verify` touches the network, so it runs the same on a laptop, in
-CI and on a plane. It currently reports **90 tests across 7 files**, and
+CI and on a plane. It currently reports **100 tests across 8 files**, and
 `calibrate:rules` **21/21** on the authored corpus.
 
 ### Calibrate
@@ -266,6 +266,7 @@ src/
       grice.ts cialdini.ts aristotle.ts berne.ts    the four lenses
       semantic.ts            the model's vote — the pure, testable half
       composite.ts           core + vote → composite verdict and divergence
+      scope.ts               guards against a confident CLEAN on an unreadable message
     fraction.ts              exact rational arithmetic; no float reaches a seal
     read_verdict.ts          assembles one message's composite verdict
     state_rules.ts           the deterministic state engine (for TRAIN)
@@ -286,8 +287,8 @@ docs/
 corpus/
   read_messages.json         15 READ cases, incl. low-signal and adversarial
   user_moves.json            21 authored classifier cases, 0 field cases
-tests/                       90 tests: determinism, precedence, chain, gate,
-                             policy, and lexical coverage with benign twins
+tests/                       100 tests: determinism, precedence, chain, gate,
+                             policy, lexical coverage, and the scope guard
 scripts/                     doc generator, model probe, calibration, deploy
 ```
 
@@ -310,13 +311,18 @@ the code.
   | English | MIXED | 43% | 2 lenses |
   | Spanish | CLEAN | 0% | 0 lenses |
 
+  This is now **declared rather than silent**: `src/lib/frameworks/scope.ts`
+  detects that the lenses could not read the message, the verdict carries
+  `coverage: 'out_of_scope'`, confidence drops to Low, and the panel says
+  "NO VERDICT" instead of showing a reassuring clean zero. Validated at both
+  ends — zero false positives across all 36 English corpus messages, terse ones
+  included, and four non-English languages correctly flagged.
+
   Gemini is multilingual and the READ prompt does not restrict language, so the
-  model half is expected to keep voting normally — which would make the
-  divergence panel report a core-vs-model split on *every* non-English message.
-  That is not the architecture failing; it is the lexicons being out of scope.
-  Untested against a live model, and stated as an expectation rather than a
-  finding. Supporting a second language means porting all four lexicons, not
-  translating the interface.
+  model half is expected to keep voting normally on such a message. Untested
+  against a live model, and stated as an expectation rather than a finding.
+  Supporting a second language means porting all four lexicons, not translating
+  the interface.
 
 - **The lenses remain lexical heuristics.** The Day 3 miss is fixed — a live
   message that returned CLEAN (only Aristotle firing, while the model said
