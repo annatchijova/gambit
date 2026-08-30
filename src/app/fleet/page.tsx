@@ -15,7 +15,7 @@ export const metadata: Metadata = {
  */
 export default function Fleet() {
   return (
-    <main className="mx-auto w-full max-w-4xl px-6 py-12">
+    <main className="mx-auto w-full max-w-6xl px-6 py-16">
       <div className="fleetviz">
         <div className="wrap">
           <header>
