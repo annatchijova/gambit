@@ -37,6 +37,11 @@ export const MODELS = {
   COACH: 'gemini-3.5-flash-lite',
   /** SCORE — narration of an already-computed score. Non-blocking. */
   SCORE: 'gemini-3.5-flash-lite',
+  /**
+   * ASK — questions about a verdict that is already sealed. Critical path: the
+   * reader typed a question and is watching for the answer.
+   */
+  ASK: 'gemini-3.5-flash',
 } as const;
 
 export type ModelRole = keyof typeof MODELS;

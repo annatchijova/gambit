@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { AnnotatedMessage } from '@/components/AnnotatedMessage';
+import { AskPanel } from '@/components/AskPanel';
 import { ReadCard } from '@/components/ReadCard';
 import { FleetPanel } from '@/components/FleetPanel';
 import { PipelineDiagram } from '@/components/PipelineDiagram';
@@ -153,6 +154,13 @@ export default function Home() {
           <AnnotatedMessage message={readMessage} verdict={status.data.verdict} />
           <FleetPanel verdict={status.data.verdict} />
           <ReadCard read={status.data.read} mode={status.data.mode} />
+          {/* Questions come last: the evidence and the verdict are settled
+              above before anything conversational is offered. */}
+          <AskPanel
+            message={readMessage}
+            verdict={status.data.verdict}
+            read={status.data.read}
+          />
           <p className="label">
             {status.data.meta.elapsedMs} ms · {status.data.meta.attempts} attempt
             {status.data.meta.attempts === 1 ? '' : 's'}

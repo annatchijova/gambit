@@ -116,7 +116,7 @@ git-ignored, `tsc` alone fails on any clean checkout. `typegen` costs well under
 a second, so `verify` stays cheap.
 
 Nothing in `verify` touches the network, so it runs the same on a laptop, in
-CI and on a plane. It currently reports **119 tests across 9 files**, and
+CI and on a plane. It currently reports **136 tests across 10 files**, and
 `calibrate:rules` **21/21** on the authored corpus.
 
 ### Calibrate
@@ -180,6 +180,7 @@ Four modules. Only the first is built.
 | Module | Does | Status |
 |---|---|---|
 | **READ** | Names the tactic in an inbound message: a sealed deterministic verdict from four framework lenses, the model's independent vote beside it, quoted evidence, calibrated confidence and competing readings | Built |
+| **ASK** | Follow-up questions about a verdict that is already sealed. The model explains it and cannot revise it, draft a reply, or decide anything | Built |
 | **THINK** | Three strategic replies — soft, tactical, direct — shaped by the user's own voice profile and red lines | Phase 1B |
 | **TRAIN** | Practice against a simulated counterparty that adapts, with asynchronous coaching | Phase 1C |
 | **SCORE** | A negotiation score across four axes, computed from the transition log | Phase 1D |
@@ -256,6 +257,31 @@ The payload is defined once, in `src/lib/frameworks/seal_payload.ts`, and shared
 by the sealer, the server-side verifier and the browser — so the three cannot
 drift into checking different things.
 
+### Asking about a verdict, without letting the model revise it
+
+The panel takes questions — why did Cialdini fire and Grice not, what does a
+split between the rules and the model mean. The same architecture applies:
+
+- The request carries the **message, not the verdict**. `/api/ask` re-runs the
+  fleet over that message and grounds the answer in the verdict it computes for
+  itself, so a tampered client cannot supply the facts the model reasons from.
+  Stronger than accepting a verdict and verifying its seal, and less code.
+- The sealed numbers reach the prompt as **established fact**, with every lens's
+  tags and quoted spans, and the agent has no tool that writes them back.
+- The interface keeps rendering its own sealed copy. **Verify seal still passes
+  after any amount of conversation** — that is the check to run on stage.
+
+So the worst case is a wrong explanation beside a right verdict, never a wrong
+number. The counterparty's message is untrusted text and is framed as data in
+the prompt; an instruction embedded in it can at most produce misleading prose
+next to a verdict that still convicts, still shows its evidence, and still
+re-hashes correctly in the reader's browser.
+
+READ itself stays stateless (`includeContents: 'none'`, a fresh session per
+request) so two reads of one message cannot differ invisibly. ASK carries its
+transcript in the request instead of a server session, because the ADK session
+store is per-instance and Cloud Run runs several.
+
 ### Failure is visible, never silent
 
 The Day 1 spike found that `Runner.runAsync()` does not throw when a model
@@ -280,11 +306,13 @@ was an untested aspiration that timed out every real call.
 src/
   app/
     api/read/route.ts        request boundary, policy, response re-validation
+    api/ask/route.ts         questions about a sealed verdict; recomputes it
     page.tsx                 landing + READ screen
     architecture/page.tsx    "how it works"
     layout.tsx               nav / footer shell
   components/
     AnnotatedMessage.tsx     the message, with each lens's spans marked in place
+    AskPanel.tsx             ask Gemini about the verdict; it cannot change it
     ReadCard.tsx             the model's reading, with the uncertainty layer
     FleetPanel.tsx           per-lens severities, core-vs-model divergence, seal strip
     SealVerifier.tsx         recomputes the SHA-256 in the reader's own browser
@@ -303,6 +331,7 @@ src/
     canonical.ts             canonical JSON; client-safe, so the browser can re-hash
     fraction.ts              exact rational arithmetic; no float reaches a seal
     read_verdict.ts          assembles one message's composite verdict
+    ask_prompt.ts            renders the sealed verdict as read-only fact
     state_rules.ts           the deterministic state engine (for TRAIN)
     models.ts                single source of truth for model IDs
     env.ts                   credential boundary
@@ -321,9 +350,9 @@ docs/
 corpus/
   read_messages.json         15 READ cases, incl. low-signal and adversarial
   user_moves.json            21 authored classifier cases, 0 field cases
-tests/                       119 tests: determinism, precedence, chain, gate,
+tests/                       136 tests: determinism, precedence, chain, gate,
                              policy, lexical coverage both ways, the scope
-                             guard, and prompt injection against the core
+                             guard, prompt injection, and the ASK boundary
 scripts/                     doc generator, model probe, calibration, corpus,
                              deploy
 ```

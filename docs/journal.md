@@ -248,4 +248,43 @@ this work was done in cannot reach either backend.
 instruction instead of obeying it. The deterministic half is now proven immune;
 the model half is not. **Settled by:** the same live calibration run.
 
-## Day 5 — _(pending)_
+## Day 5 — ASK: a conversation the model cannot win
+
+**CODE FACT.** READ is stateless by construction — `includeContents: 'none'`,
+`randomUUID()` per request, and an instruction that forbids drafting a reply —
+so there was no way to ask a follow-up question. That was three separate
+deliberate decisions, not an omission, and the reproducibility argument behind
+them still holds.
+
+**CODE FACT.** ASK adds the conversation without touching any of it, because its
+subject is a verdict that is ALREADY sealed. `/api/ask` does not accept a
+verdict from the client: it takes the message and re-runs `runFleet` over it,
+which is deterministic and needs no model, no network and no key. The fact base
+is therefore computed rather than supplied, which is strictly stronger than
+accepting a client verdict and verifying its seal — and it is less code.
+
+**CODE FACT.** The guarantee does not rest on the model behaving. The agent gets
+the sealed numbers as fact and has no tool that writes them back; the interface
+renders its own sealed copy regardless of what comes back. Verified in a real
+browser: after two questions, `Verify seal` still recomputes and matches on both
+the core and the composite. The worst case ASK can produce is a wrong
+explanation beside a right verdict.
+
+**CODE FACT.** The transcript travels with each request rather than living in an
+ADK session. `InMemorySessionService` is per-instance and `deploy.sh` runs up to
+three instances, so a server-side thread would be lost, silently, whenever a
+turn landed elsewhere. Bounded to 8 turns: an unbounded transcript grows the
+prompt, the latency and the bill together.
+
+**FALSIFIED — caught in a screenshot, again.** Assumed tagging the response
+`mode: 'mock'` was enough. The panel was ignoring it, so a stored answer rendered
+identically to a live one — the exact failure the fixture rules exist to
+prevent, reintroduced on a new surface. Each answer now carries its own badge.
+
+**HYPOTHESIS.** ASK refuses out-of-remit questions rather than answering them —
+"write my reply", "should I accept". The schema carries `outOfRemit` and the
+instruction forbids all four cases, but no live model has been asked yet.
+**Settled by:** asking it those questions against a real key, on the same run as
+`calibrate:read`.
+
+## Day 6 — _(pending)_
