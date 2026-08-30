@@ -116,7 +116,7 @@ git-ignored, `tsc` alone fails on any clean checkout. `typegen` costs well under
 a second, so `verify` stays cheap.
 
 Nothing in `verify` touches the network, so it runs the same on a laptop, in
-CI and on a plane. It currently reports **100 tests across 8 files**, and
+CI and on a plane. It currently reports **119 tests across 9 files**, and
 `calibrate:rules` **21/21** on the authored corpus.
 
 ### Calibrate
@@ -305,8 +305,9 @@ docs/
 corpus/
   read_messages.json         15 READ cases, incl. low-signal and adversarial
   user_moves.json            21 authored classifier cases, 0 field cases
-tests/                       100 tests: determinism, precedence, chain, gate,
-                             policy, lexical coverage, and the scope guard
+tests/                       119 tests: determinism, precedence, chain, gate,
+                             policy, lexical coverage both ways, the scope
+                             guard, and prompt injection against the core
 scripts/                     doc generator, model probe, calibration, deploy
 ```
 
@@ -344,10 +345,14 @@ the code.
 
 - **The lenses remain lexical heuristics.** The Day 3 miss is fixed — a live
   message that returned CLEAN (only Aristotle firing, while the model said
-  MANIPULATIVE 16/20) now reads PERSUASIVE 61% with three quoted spans, after
-  the Cialdini patterns stopped requiring contractions and strict adjacency.
-  `tests/lexicons.test.ts` locks that in and pairs every widening with a benign
-  twin that must stay quiet. But the lenses still match surface patterns: a
+  MANIPULATIVE 16/20) now reads PERSUASIVE 61% with three quoted spans — and a
+  probe of the other three lenses closed seven more misses while removing five
+  false positives, where an honest message ("you need to sign the NDA", "a risky
+  dependency", "let me be clear about the scope") fired a lens on a bare word.
+  Those five survived only on the corroboration gate, which is luck rather than
+  design. `tests/lexicons.test.ts` locks both directions in and pairs every
+  widening with a benign twin that must stay quiet. But the lenses still match
+  surface patterns: a
   tactic phrased in words no pattern anticipates will be missed by the
   deterministic half, which is exactly why the model votes beside it and why
   the divergence is shown rather than averaged.

@@ -23,19 +23,22 @@ const CATEGORIES: readonly Category[] = [
     tag: 'PARENT_critical',
     weight: Fraction.of(3, 10),
     pattern:
-      /\b(?:you (?:should|ought to) know better|i shouldn'?t have to (?:explain|tell you)|let me be (?:very )?clear|frankly|to be (?:honest|blunt) with you|be reasonable|grow up|come on now)\b/,
+      // Two arms were narrowed. A bare `frankly` and a bare `let me be clear`
+      // fire on candour and on plain scope-setting; the Parent move is those
+      // registers aimed AT the other person, so both now require that aim.
+      /\b(?:you (?:should|ought to) know better|you should have known|surely you (?:understand|know|appreciate|realise|realize)|i shouldn'?t have to (?:explain|tell you)|let me be (?:very )?clear[,.:]?\s+(?:you|this is|i am|i'?m|we are|we'?re)|frankly,?\s+(?:you|i expected|i'?m surprised)|to be (?:honest|blunt) with you|be reasonable|grow up|come on now)\b/,
   },
   {
     tag: 'ULTERIOR_polite_pressure',
     weight: Fraction.of(3, 10),
     pattern:
-      /\b(?:with (?:all due )?respect,? but|no (?:pressure|offense),? but|don'?t take this the wrong way,? but|i'?m just saying|i hate to (?:do|say) this,? but|nothing personal,? but|not to be (?:rude|difficult),? but)\b/,
+      /\b(?:with (?:all due )?respect,? but|no (?:pressure|offense),? but|don'?t take this the wrong way,? but|i'?m just saying|i hate to (?:do|say) this,? but|nothing personal,? but|not to be (?:rude|difficult),? but|i don'?t mean to be (?:rude|difficult|harsh),? but)\b/,
   },
   {
     tag: 'CHILD_guilt_victim',
     weight: Fraction.of(3, 10),
     pattern:
-      /\b(?:i guess i'?ll just|if that'?s how you want it|i thought we were (?:friends|partners|better than)|after all (?:i'?ve|this)|you'?re putting me in a (?:tough|bad) (?:spot|position)|i don'?t know what (?:i'?ll|we'?ll) do)\b/,
+      /\b(?:i guess (?:i'?ll|i will|i)\s*(?:just)?|if that'?s how you want it|i thought we were (?:friends|partners|better than)|after all (?:(?:i|we)(?:'?ve| have)|this)|you'?re putting me in a (?:tough|bad) (?:spot|position)|i don'?t know what (?:i'?ll|we'?ll) do)\b/,
   },
 ];
 
