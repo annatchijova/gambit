@@ -15,10 +15,11 @@ not decide anything on your behalf.
 
 ## Status
 
-Day 3 of a 14-day build. **READ** is implemented end-to-end and deployed to
-Cloud Run on Vertex AI. **THINK**, **TRAIN** and **SCORE** are not built and
-are deliberately absent from the interface rather than stubbed, so nothing on
-screen promises a capability that does not exist.
+Day 4 of a 14-day build, deployed to Cloud Run on Vertex AI. The read, the
+questions about it, drafting, practice and the assistant are all built and live
+(see [What is built](#what-is-built)). Deeper legal reading, coaching and
+scoring are not — and are deliberately absent from the interface rather than
+stubbed, so nothing on screen promises a capability that does not exist.
 
 READ analyses **English-language** messages. The four deterministic lenses are
 English lexical patterns, so a message in another language fires none of them —
@@ -116,7 +117,7 @@ git-ignored, `tsc` alone fails on any clean checkout. `typegen` costs well under
 a second, so `verify` stays cheap.
 
 Nothing in `verify` touches the network, so it runs the same on a laptop, in
-CI and on a plane. It currently reports **136 tests across 10 files**, and
+CI and on a plane. It currently reports **153 tests across 13 files**, and
 `calibrate:rules` **21/21** on the authored corpus.
 
 ### Calibrate
@@ -175,7 +176,7 @@ Override the defaults with `GAMBIT_PROJECT`, `GAMBIT_REGION` and
 
 ## What is built
 
-Two things, both working end to end and deployed.
+Five things, all working end to end and deployed.
 
 **The read.** You paste one inbound message. Four deterministic lenses examine
 it with no model in the loop, and the fleet seals a verdict. Then Gemini reads
@@ -187,23 +188,33 @@ and the model disagree — the disagreement stated rather than averaged.
 another did not, what a split means. It explains and cannot revise. The seal
 still verifies after any amount of conversation.
 
+**Drafting.** On request — never before — Gemini drafts three reply options,
+soft, tactical and direct, in the user's voice and grounded in the sealed read.
+It never marks one as recommended and it never sends: the user chooses, edits,
+and sends. (This is why the interface says "GAMBIT drafts options, you choose
+and you send", not "it does not write your reply".)
+
+**Practice.** A simulated counterparty you negotiate against turn by turn. Every
+move you make is read by the deterministic engine (`src/lib/state_rules.ts`),
+which moves and re-seals the state; the counterparty replies in persona,
+consistent with a state it cannot change. The seal chain is re-verified every
+turn, on screen.
+
+**The assistant.** A conversational copilot that can search the web (grounded
+Gemini) for current facts, and read a pasted contract to flag inconsistencies
+and one-sided terms. It guides and cites; it is explicitly not legal advice and
+never sends or signs anything.
+
 ## What is not built
 
-Listed separately from the above on purpose: nothing here exists, and nothing on
-screen promises it.
+Listed separately on purpose: nothing here exists, and nothing on screen
+promises it.
 
 | Next | What it would add |
 |---|---|
-| **Drafting** | Reply options in the user's own voice, shaped by their red lines. The user still chooses and still sends. |
-| **Legal reading** | Longer documents rather than one message, and clause-level patterns rather than negotiation tactics. A different input size and a different lexicon — see the note below. |
-| **Practice** | A simulated counterparty that adapts, with coaching afterwards. The deterministic engine it runs on is already written and tested (`src/lib/state_rules.ts`). |
+| **Deeper legal reading** | The assistant reads contracts today, but the deterministic lenses do not: they are capped at 4,000 characters and look for negotiation tactics, not clauses. A clause-level lexicon and a longer input path would put legal documents on the sealed path too — a second lexicon and a second input, not a setting. |
+| **Coaching** | Asynchronous feedback after a practice session, not just the live exchange. |
 | **Scoring** | A negotiation score across four axes, computed from the transition log. |
-
-**On drafting.** It changes a promise this interface currently makes in three
-places — "it does not write your reply". That line was never about refusing to
-be useful; it was about who decides. When drafting ships, the promise becomes
-"GAMBIT drafts options, you choose and you send", and the copy has to be
-rewritten to say so rather than quietly contradicted.
 
 **On legal.** The read is capped at 4,000 characters — that is a message, not a
 contract — and every lens looks for negotiation tactics, not clauses. Pointing
@@ -378,7 +389,7 @@ docs/
 corpus/
   read_messages.json         15 READ cases, incl. low-signal and adversarial
   user_moves.json            21 authored classifier cases, 0 field cases
-tests/                       136 tests: determinism, precedence, chain, gate,
+tests/                       153 tests: determinism, precedence, chain, gate,
                              policy, lexical coverage both ways, the scope
                              guard, prompt injection, and the ASK boundary
 scripts/                     doc generator, model probe, calibration, corpus,

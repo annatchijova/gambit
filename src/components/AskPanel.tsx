@@ -124,8 +124,8 @@ export function AskPanel({
       <h2 className="label">Ask about this reading</h2>
       <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-text-dim">
         Gemini can explain the verdict above. It cannot change it — the numbers were sealed before
-        it was called, and they stay sealed however long you talk. It will not write your reply or
-        tell you what to accept.
+        it was called, and they stay sealed however long you talk. Asking explains; it does not
+        decide for you or send anything. (Drafting a reply is a separate, explicit step.)
       </p>
 
       {entries.length === 0 && (

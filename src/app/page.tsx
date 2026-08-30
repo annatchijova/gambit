@@ -128,8 +128,8 @@ export default function Home() {
         </h1>
         <p className="mt-5 text-[13px] leading-relaxed text-text-dim">
           Paste a message you are about to reply to. Four rule-based lenses and Gemini read it and
-          underline the exact spans that made them say so — then stop. GAMBIT does not write your
-          reply and does not decide anything for you.
+          underline the exact spans that made them say so. GAMBIT can then draft reply options in
+          your voice — but it never sends, and you decide.
         </p>
         <p className="mt-3 border-l-2 border-ink-line pl-3 text-xs text-text-faint">
           AI increases agency. It does not replace it.
