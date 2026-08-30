@@ -31,42 +31,46 @@
  */
 
 :root {
-  /* Ground: a cool ink, not a true black. Black is flat under a projector and
-     leaves nowhere to go for the panels that sit on top of it. */
-  --ink: #12151b;
-  --ink-raised: #191d25;
-  --ink-line: #272c36;
+  /* Ground: a warm graphite, not a cool ink and not a true black. Warmer reads
+     as more human, and the higher-contrast text below keeps it legible for
+     tired or low-vision eyes — the whole point of this palette. */
+  --ink: #191613;
+  --ink-raised: #221d18;
+  --ink-line: #3a322b;
 
   /* The message surface. The one warm, bright thing on the page. */
-  --paper: #f2efe7;
-  --paper-edge: #ddd8cb;
-  --paper-ink: #1e2127;
-  --paper-faint: #6b6862;
+  --paper: #f5f0e6;
+  --paper-edge: #e0d9c9;
+  --paper-ink: #211d17;
+  --paper-faint: #726a5c;
 
-  --text: #e8e6e1;
-  --text-dim: #9ca1ab;
-  --text-faint: #6d7480;
+  /* High-contrast text: near-white warm on the warm dark, so body copy clears
+     a comfortable ratio rather than the usual dim grey-on-grey. */
+  --text: #f4efe6;
+  --text-dim: #c2b9aa;
+  --text-faint: #8f8677;
 
-  /* One lens, one hue. Chosen to stay distinguishable from each other and to
-     read on paper; the -lit variants are the same hues raised for the ink. */
-  --lens-cialdini: #b23a2c;
-  --lens-cialdini-lit: #e4796a;
-  --lens-aristotle: #a06a12;
-  --lens-aristotle-lit: #dfa63f;
-  --lens-grice: #1d6f6b;
-  --lens-grice-lit: #4fb3ad;
-  --lens-berne: #55499a;
-  --lens-berne-lit: #9b8fe0;
-  /* The model is deliberately outside the lens palette — it is a different
-     kind of witness, and it never gets the authority of a rule. */
-  --lens-gemini: #4a5568;
-  --lens-gemini-lit: #a9b4c4;
+  /* One lens, one hue — refreshed to a warmer, more saturated set that stays
+     distinguishable and bright enough to read on the dark. The -lit variants
+     are the ones used on the ink. */
+  --lens-cialdini: #d9513c;
+  --lens-cialdini-lit: #f18a72;
+  --lens-aristotle: #cf9a24;
+  --lens-aristotle-lit: #efc158;
+  --lens-grice: #1f9e8a;
+  --lens-grice-lit: #5ecdb8;
+  --lens-berne: #7c6fd0;
+  --lens-berne-lit: #aaa0ee;
+  /* The model is deliberately outside the lens palette — a different kind of
+     witness, a warm neutral slate, never the authority of a rule. */
+  --lens-gemini: #8b8573;
+  --lens-gemini-lit: #c4bda9;
 
   /* Verdict register: a single warming ramp, quiet to alarmed. */
-  --v-clean: #4d9c7f;
-  --v-mixed: #c3922f;
-  --v-persuasive: #d1743a;
-  --v-manipulative: #cf5341;
+  --v-clean: #55b088;
+  --v-mixed: #cf9a24;
+  --v-persuasive: #df7a3f;
+  --v-manipulative: #dd5340;
 
   --background: var(--ink);
   --foreground: var(--text);
@@ -98,6 +102,13 @@
     "Times New Roman", serif;
 }
 
+/* Accessibility: scale the whole rem-based interface up ~12.5% from the browser
+   default, so text and spacing are comfortable for tired and low-vision eyes.
+   Everything sized in rem grows with this one line. */
+html {
+  font-size: 112.5%;
+}
+
 body {
   background: var(--ink);
   color: var(--text);
@@ -113,9 +124,9 @@ body {
 --------------------------------------------------------------------------- */
 .label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-faint);
 }
