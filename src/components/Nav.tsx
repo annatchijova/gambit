@@ -31,6 +31,12 @@ export function Nav() {
 
         <div className="flex items-center gap-1 text-sm">
           <Link
+            href="/fleet"
+            className="rounded-sm px-3 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text"
+          >
+            Fleet
+          </Link>
+          <Link
             href="/chat"
             className="rounded-md px-3 py-1.5 text-white/60 transition hover:bg-white/5 hover:text-white/90"
           >
