@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { AnnotatedMessage } from '@/components/AnnotatedMessage';
+import { AskPanel } from '@/components/AskPanel';
 import { ReadCard } from '@/components/ReadCard';
 import { FleetPanel } from '@/components/FleetPanel';
 import { ThinkPanel } from '@/components/ThinkPanel';
@@ -51,6 +53,10 @@ type ThinkStatus =
 
 export default function Home() {
   const [message, setMessage] = useState('');
+  // The message the CURRENT result was computed from. Distinct from `message`
+  // on purpose: the reader can start editing the box without the marks under
+  // the previous verdict silently shifting to text it never saw.
+  const [readMessage, setReadMessage] = useState('');
   const [hasAlternative, setHasAlternative] = useState(false);
   const [status, setStatus] = useState<Status>({ phase: 'idle' });
   const [think, setThink] = useState<ThinkStatus>({ phase: 'idle' });
@@ -67,6 +73,7 @@ export default function Home() {
     setLastReq(body);
     setThink({ phase: 'idle' });
     setStatus({ phase: 'reading' });
+    setReadMessage(msg);
     try {
       const res = await fetch('/api/read', {
         method: 'POST',
@@ -112,18 +119,21 @@ export default function Home() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-8 px-6 py-16">
-      <header>
-        <p className="brand-text text-[11px] font-semibold uppercase tracking-[0.24em]">GAMBIT YourMove</p>
-        <h1 className="mt-2 text-3xl font-medium tracking-tight text-white">
-          What are they actually doing?
+      <header className="max-w-2xl">
+        <p className="label">Read one message</p>
+        <h1 className="mt-3 font-[family-name:var(--font-read)] text-[2.6rem] font-normal leading-[1.1] tracking-[-0.02em] text-text sm:text-5xl">
+          Which words are
+          <br />
+          doing the work?
         </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/60">
-          You are about to reply to a message that will cost you money. GAMBIT reads what the other side
-          is actually doing — a fleet of rule-based lenses plus Gemini — shows you the evidence it used,
-          tells you how sure it is, and then stops. It does not write your reply, and it does not decide
-          anything for you.
+        <p className="mt-5 text-[13px] leading-relaxed text-text-dim">
+          Paste a message you are about to reply to. Four rule-based lenses and Gemini read it and
+          underline the exact spans that made them say so — then stop. GAMBIT does not write your
+          reply and does not decide anything for you.
         </p>
-        <p className="mt-2 font-mono text-xs text-white/35">AI increases agency. It does not replace it.</p>
+        <p className="mt-3 border-l-2 border-ink-line pl-3 text-xs text-text-faint">
+          AI increases agency. It does not replace it.
+        </p>
       </header>
 
       {status.phase === 'idle' && <PipelineDiagram />}
@@ -142,11 +152,11 @@ export default function Home() {
             rows={6}
             maxLength={4000}
             placeholder="…or paste their message here."
-            className="w-full resize-y rounded-lg border border-white/10 bg-black/30 p-4 text-sm leading-relaxed text-white/90 outline-none transition placeholder:text-white/25 focus:border-white/30"
+            className="w-full resize-y rounded-sm border border-ink-line bg-ink-raised p-4 font-[family-name:var(--font-read)] text-[15px] leading-relaxed text-text outline-none transition placeholder:text-text-faint focus:border-[color:var(--lens-aristotle-lit)]"
           />
 
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <label className="flex items-center gap-2 text-sm text-white/50">
+            <label className="flex items-center gap-2 text-sm text-text-dim">
               <input
                 type="checkbox"
                 checked={hasAlternative}
@@ -160,41 +170,49 @@ export default function Home() {
               type="button"
               onClick={() => runRead()}
               disabled={busy || message.trim().length === 0}
-              className="rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition disabled:cursor-not-allowed disabled:bg-white/20 disabled:text-white/40"
+              className="rounded-sm bg-paper px-5 py-2 text-sm font-semibold text-paper-ink transition hover:bg-white disabled:cursor-not-allowed disabled:bg-ink-line disabled:text-text-faint"
             >
               {busy ? 'Reading…' : 'Read this message'}
             </button>
           </div>
-          <p className="text-right text-xs tabular-nums text-white/25">{message.length} / 4000</p>
+          <p className="label text-right tabular-nums">{message.length} / 4000</p>
         </div>
       </div>
 
       {status.phase === 'reading' && (
-        <div className="dot-grid rounded-xl border border-white/10 bg-white/[0.02] p-6">
-          <div className="flex items-center gap-3">
-            <span className="h-2 w-2 animate-pulse rounded-full brand-gradient" />
-            <p className="text-sm text-white/70">
-              The deterministic fleet has already sealed its verdict. Waiting on Gemini’s vote — a live
-              model call takes about ten seconds.
-            </p>
-          </div>
+        <div className="ruled rounded-sm border border-ink-line bg-ink-raised p-5">
+          <p className="label">Sealed · waiting on the model</p>
+          <p className="mt-2 text-sm leading-relaxed text-text-dim">
+            The rules have already read this message and sealed their verdict. Gemini is being asked
+            for its vote — about ten seconds on a live call.
+          </p>
         </div>
       )}
 
       {status.phase === 'failed' && (
-        <p className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
-          {status.message}
-        </p>
+        <div className="rounded-sm border-l-2 border-[color:var(--v-manipulative)] bg-[color:var(--v-manipulative)]/10 p-4">
+          <p className="label !text-[color:var(--v-manipulative)]">The read did not complete</p>
+          <p className="mt-1.5 text-sm text-text">{status.message}</p>
+        </div>
       )}
 
       {status.phase === 'done' && (
         <>
+          {/* The evidence first. Everything below is a reading OF this. */}
+          <AnnotatedMessage message={readMessage} verdict={status.data.verdict} />
           <FleetPanel verdict={status.data.verdict} />
           <ReadCard read={status.data.read} mode={status.data.mode} />
-          <p className="text-xs tabular-nums text-white/25">
+          {/* Questions come last: the evidence and the verdict are settled
+              above before anything conversational is offered. */}
+          <AskPanel
+            message={readMessage}
+            verdict={status.data.verdict}
+            read={status.data.read}
+          />
+          <p className="label">
             {status.data.meta.elapsedMs} ms · {status.data.meta.attempts} attempt
             {status.data.meta.attempts === 1 ? '' : 's'}
-            {status.data.mode === 'mock' ? ' · fixture' : ' · live Gemini'}
+            {status.data.mode === 'mock' ? ' · fixture' : ' · live gemini'}
           </p>
 
           {/* THINK — offered after the read, never before. ----------------- */}

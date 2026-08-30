@@ -12,6 +12,22 @@ import {
  * GAMBIT YourMove — deterministic state engine.
  *
  * ============================================================================
+ * READ THIS FIRST: MOST OF THIS FILE IS NOT ON A SHIPPED PATH
+ * ============================================================================
+ *
+ * `normaliseMessage`, `sha256` and `canonicalJson` are used by the framework
+ * fleet and therefore run on every request. Everything else here — `RULES`,
+ * `classifyUserMove`, `applyMove`, `verifyChain`, `initialState` — is called
+ * only by the tests, `npm run calibrate:rules` and the doc generator. Nothing
+ * in `src/app/` touches them.
+ *
+ * That is deliberate, not rot. This is the engine TRAIN will run on, built
+ * early because it needs no network, no key and no SDK, and finished while
+ * those were still unavailable. It is stated here because the alternative is a
+ * reader finding the largest file in the codebase and having no way to tell
+ * whether it is load-bearing or abandoned.
+ *
+ * ============================================================================
  * WHAT THIS FILE IS, AND WHAT IT IS NOT
  * ============================================================================
  *

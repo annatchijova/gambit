@@ -11,9 +11,9 @@ import { collectEvidence, runCategories, severityFromHits, type Category } from 
  * manipulative in concentration — which is exactly why the fleet does not
  * convict on one lever alone, but counts how many are being pulled at once.
  *
- * Ported from ARGOS's Carnegie detector and corvus/wolf-and-cronos L2. In a
- * negotiation these are the tactics that manufacture pressure the underlying
- * position does not justify: the message feels urgent without being urgent.
+ * In a negotiation these are the tactics that manufacture pressure the
+ * underlying position does not justify: the message feels urgent without being
+ * urgent.
  */
 
 const CATEGORIES: readonly Category[] = [
@@ -75,8 +75,8 @@ const CATEGORIES: readonly Category[] = [
 export const analyzeCialdini: FrameworkAnalyzer = (norm, raw): FrameworkSignal => {
   const hits = runCategories(CATEGORIES, norm, raw);
 
-  // Convergence bonus, staged like ARGOS's Carnegie amplifier: three levers is
-  // a pressure campaign, four is a vice. One lever on its own stays modest.
+  // Convergence bonus, staged: three levers is a pressure campaign, four is a
+  // vice. One lever on its own stays modest.
   let severity = severityFromHits(hits);
   if (hits.length >= 4) severity = severity.add(Fraction.of(1, 4)).clamp01();
   else if (hits.length >= 3) severity = severity.add(Fraction.of(1, 8)).clamp01();

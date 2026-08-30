@@ -84,13 +84,13 @@ export function SealVerifier({ verdict }: { verdict: CompositeVerdict }) {
   }
 
   return (
-    <div className="rounded-lg border border-white/10 bg-black/20 p-4">
+    <div className="rounded-sm border border-ink-line bg-ink p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
+          <p className="label">
             Chain of custody
           </p>
-          <p className="mt-1 max-w-md text-sm text-white/50">
+          <p className="mt-1 max-w-md text-sm text-text-dim">
             Do not take our word for it. Recompute the SHA-256 in your own browser and
             compare it to the seal that travelled with this verdict.
           </p>
@@ -99,14 +99,14 @@ export function SealVerifier({ verdict }: { verdict: CompositeVerdict }) {
           type="button"
           onClick={verify}
           disabled={status.phase === 'working'}
-          className="shrink-0 rounded-md border border-white/20 px-4 py-2 font-mono text-xs text-white/80 transition hover:border-white/40 hover:bg-white/5 disabled:opacity-50"
+          className="shrink-0 rounded-sm border border-ink-line px-4 py-2 font-mono text-xs uppercase tracking-[0.12em] text-text transition hover:border-[color:var(--v-clean)] hover:bg-white/[0.04] disabled:opacity-50"
         >
           {status.phase === 'working' ? 'Hashing…' : 'Verify seal'}
         </button>
       </div>
 
       {status.phase === 'unavailable' && (
-        <p className="mt-3 rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-200">
+        <p className="mt-3 rounded-sm border-l-2 px-3 py-2 text-sm" style={{ borderColor: 'var(--v-mixed)', background: 'color-mix(in srgb, var(--v-mixed) 10%, transparent)', color: 'var(--v-mixed)' }}>
           {status.message}
         </p>
       )}
@@ -125,11 +125,11 @@ export function SealVerifier({ verdict }: { verdict: CompositeVerdict }) {
             okText="binds the core seal — matches"
             badText="DOES NOT MATCH — the composite was altered after sealing"
           />
-          <p className="break-all pt-1 font-mono text-[10px] leading-relaxed text-white/30">
+          <p className="break-all pt-1 font-mono text-[10px] leading-relaxed text-text-faint">
             {status.coreDigest}
           </p>
           {status.coreOk && status.compositeOk && (
-            <p className="text-xs leading-relaxed text-white/45">
+            <p className="text-xs leading-relaxed text-text-faint">
               Your browser just confirmed the numbers on screen are the ones the rule
               engine committed to before Gemini was called. That is integrity, not
               accuracy — it proves nothing was changed, not that the reading is right.
@@ -154,13 +154,12 @@ function CheckRow({
 }) {
   return (
     <p
-      className={`flex flex-wrap items-baseline gap-x-2 text-sm ${
-        ok ? 'text-emerald-300' : 'text-red-300'
-      }`}
+      className="flex flex-wrap items-baseline gap-x-2 text-sm"
+      style={{ color: ok ? 'var(--v-clean)' : 'var(--v-manipulative)' }}
     >
       <span className="font-mono text-xs">{ok ? '✓' : '✗'}</span>
       <span className="font-medium">{label}</span>
-      <span className={ok ? 'text-white/50' : 'text-red-200'}>{ok ? okText : badText}</span>
+      <span className={ok ? 'text-text-dim' : ''}>{ok ? okText : badText}</span>
     </p>
   );
 }

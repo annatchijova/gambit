@@ -42,10 +42,10 @@ const STAGES: Array<{ n: string; title: string; body: string; glyphs?: string[];
 
 export function PipelineDiagram() {
   return (
-    <div className="dot-grid rounded-xl border border-white/10 bg-white/[0.02] p-6">
+    <div className="ruled rounded-sm border border-ink-line bg-ink-raised p-6">
       <div className="mb-5 flex items-baseline gap-2">
-        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">How it works</span>
-        <span className="text-xs text-white/40">— the model narrates the verdict; it never decides it.</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-text-faint">How it works</span>
+        <span className="text-xs text-text-faint">— the model narrates the verdict; it never decides it.</span>
       </div>
 
       <ol className="space-y-0">
@@ -58,14 +58,14 @@ export function PipelineDiagram() {
             {/* node dot */}
             <span
               className={`absolute left-0 top-1 flex h-6 w-6 items-center justify-center rounded-full font-mono text-[10px] font-bold ${
-                s.accent ? 'brand-gradient text-white' : 'border border-white/15 bg-black/40 text-white/50'
+                s.accent ? 'bg-paper text-paper-ink' : 'border border-ink-line bg-ink text-text-faint'
               }`}
             >
               {s.n}
             </span>
             <div className="pb-6">
               <div className="flex flex-wrap items-center gap-2">
-                <h4 className="text-sm font-semibold text-white/90">{s.title}</h4>
+                <h4 className="text-sm font-semibold text-text">{s.title}</h4>
                 {s.accent && (
                   <span className="stamp text-emerald-300" style={{ transform: 'rotate(-2deg)' }}>
                     ✓ sealed
@@ -76,7 +76,7 @@ export function PipelineDiagram() {
                     {s.glyphs.map((g) => (
                       <span
                         key={g}
-                        className="brand-gradient flex h-5 w-5 items-center justify-center rounded font-mono text-[10px] font-bold text-white"
+                        className="flex h-5 w-5 items-center justify-center rounded-sm bg-paper font-mono text-[10px] font-bold text-paper-ink"
                       >
                         {g}
                       </span>
@@ -84,7 +84,7 @@ export function PipelineDiagram() {
                   </span>
                 )}
               </div>
-              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-white/50">{s.body}</p>
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-text-dim">{s.body}</p>
             </div>
           </li>
         ))}

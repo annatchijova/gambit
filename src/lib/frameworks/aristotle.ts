@@ -12,7 +12,7 @@ import { collectEvidence, verbatim, type CategoryHit } from './lexical';
  * without giving you a reason it is urgent is doing rhetoric to you, not
  * argument with you.
  *
- * Ported from ARGOS's Aristotle detector and corvus/wolf-and-cronos L3. Unlike
+ * Unlike
  * the additive lenses, this one is a BALANCE computation: logos present is a
  * mitigator that lowers the severity, because a reasoned message is exactly
  * what an honest counterparty sends. Exact rationals throughout.
@@ -22,7 +22,10 @@ const PATHOS = [
   {
     tag: 'PATHOS_fear',
     pattern:
-      /\b(?:you'?ll (?:regret|lose|miss out)|don'?t (?:blow|throw away) this|last thing you want|you can'?t afford (?:to|not)|risky|dangerous|scared|worried|nightmare|disaster)\b/,
+      // Bare `risky` / `dangerous` / `worried` were removed: they are ordinary
+      // words for naming a real risk honestly, and a lens that convicts that is
+      // worse than one that misses. Catastrophe framing is what remains.
+      /\b(?:you'?ll (?:regret|lose|miss out)|you will (?:regret|lose|be left)|don'?t (?:blow|throw away) this|last thing you want|you can'?t afford (?:to|not)|left with nothing|(?:falls?|fall) apart|collapses?|nightmare|disaster)\b/,
   },
   {
     tag: 'PATHOS_guilt',
@@ -32,7 +35,9 @@ const PATHOS = [
   {
     tag: 'PATHOS_pressure',
     pattern:
-      /\b(?:you have to|you need to|there'?s no (?:other )?(?:way|choice)|no other option|forced to|either (?:you|we)|it'?s now or never)\b/,
+      // `you need to <anything>` fired on legitimate requirements ("you need to
+      // sign the NDA"). Pressure is being told to yield, not being told a fact.
+      /\b(?:you (?:have|need) to (?:understand|accept|realise|realize|decide|move|be realistic|face)|you must\b|your only (?:option|choice)|there'?s no (?:other )?(?:way|choice)|no other option|forced to|either (?:you|we)|it'?s now or never)\b/,
   },
 ] as const;
 

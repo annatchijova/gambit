@@ -24,8 +24,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="flex min-h-full flex-col bg-[#0a0a0b] text-white/90">
-        <div aria-hidden className="app-glow pointer-events-none fixed inset-x-0 top-0 h-96" />
+      <body className="flex min-h-full flex-col bg-ink text-text">
         <Nav />
         <div className="relative flex-1">{children}</div>
         <Footer />

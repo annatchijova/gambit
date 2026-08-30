@@ -116,7 +116,7 @@ git-ignored, `tsc` alone fails on any clean checkout. `typegen` costs well under
 a second, so `verify` stays cheap.
 
 Nothing in `verify` touches the network, so it runs the same on a laptop, in
-CI and on a plane. It currently reports **100 tests across 8 files**, and
+CI and on a plane. It currently reports **136 tests across 10 files**, and
 `calibrate:rules` **21/21** on the authored corpus.
 
 ### Calibrate
@@ -134,6 +134,21 @@ behaves as specified — it is a refactor guard. Only the field corpus, made of
 messages a real user typed, can say anything about accuracy, and it is still
 empty. `docs/classifier_report.md` is generated from this run and says the same
 thing at more length.
+
+**Growing the field corpus.** The field set is the only thing here that could
+support an accuracy claim, and it is empty — friction is why. One command adds a
+real message:
+
+```bash
+npm run corpus:field -- --expect PRESSURE_TEST --message "I need an answer by Friday."
+npm run corpus:field -- --list
+```
+
+`--expect` is required *before* anything is classified, and the engine's answer
+prints only after the case is written. That ordering is the point: a label
+chosen after seeing the engine's output is the engine grading itself through an
+anchored human. When the two disagree, the disagreement is the finding — fix the
+rule or record that it is wrong, but never edit the label to match.
 
 `calibrate:read` runs the full HTTP route and writes
 `docs/read_test_log.md` with a blank verdict line per case. It deliberately
@@ -158,16 +173,42 @@ the container authenticates as its own service account.
 Override the defaults with `GAMBIT_PROJECT`, `GAMBIT_REGION` and
 `GAMBIT_SERVICE`.
 
-## Architecture
+## What is built
 
-Four modules. Only the first is built.
+Two things, both working end to end and deployed.
 
-| Module | Does | Status |
-|---|---|---|
-| **READ** | Names the tactic in an inbound message: a sealed deterministic verdict from four framework lenses, the model's independent vote beside it, quoted evidence, calibrated confidence and competing readings | Built |
-| **THINK** | Three strategic replies — soft, tactical, direct — shaped by the user's own voice profile and red lines | Phase 1B |
-| **TRAIN** | Practice against a simulated counterparty that adapts, with asynchronous coaching | Phase 1C |
-| **SCORE** | A negotiation score across four axes, computed from the transition log | Phase 1D |
+**The read.** You paste one inbound message. Four deterministic lenses examine
+it with no model in the loop, and the fleet seals a verdict. Then Gemini reads
+the same message and votes beside the rules. You get the message back with each
+finding underlined in place, the verdict, how sure it is, and — where the rules
+and the model disagree — the disagreement stated rather than averaged.
+
+**The questions.** You can ask Gemini about that verdict: why one lens fired and
+another did not, what a split means. It explains and cannot revise. The seal
+still verifies after any amount of conversation.
+
+## What is not built
+
+Listed separately from the above on purpose: nothing here exists, and nothing on
+screen promises it.
+
+| Next | What it would add |
+|---|---|
+| **Drafting** | Reply options in the user's own voice, shaped by their red lines. The user still chooses and still sends. |
+| **Legal reading** | Longer documents rather than one message, and clause-level patterns rather than negotiation tactics. A different input size and a different lexicon — see the note below. |
+| **Practice** | A simulated counterparty that adapts, with coaching afterwards. The deterministic engine it runs on is already written and tested (`src/lib/state_rules.ts`). |
+| **Scoring** | A negotiation score across four axes, computed from the transition log. |
+
+**On drafting.** It changes a promise this interface currently makes in three
+places — "it does not write your reply". That line was never about refusing to
+be useful; it was about who decides. When drafting ships, the promise becomes
+"GAMBIT drafts options, you choose and you send", and the copy has to be
+rewritten to say so rather than quietly contradicted.
+
+**On legal.** The read is capped at 4,000 characters — that is a message, not a
+contract — and every lens looks for negotiation tactics, not clauses. Pointing
+this at legal documents is a second lexicon and a second input path, not a
+setting. Worth doing; worth costing honestly first.
 
 ### The architecture: the model does not decide anything
 
@@ -241,6 +282,31 @@ The payload is defined once, in `src/lib/frameworks/seal_payload.ts`, and shared
 by the sealer, the server-side verifier and the browser — so the three cannot
 drift into checking different things.
 
+### Asking about a verdict, without letting the model revise it
+
+The panel takes questions — why did Cialdini fire and Grice not, what does a
+split between the rules and the model mean. The same architecture applies:
+
+- The request carries the **message, not the verdict**. `/api/ask` re-runs the
+  fleet over that message and grounds the answer in the verdict it computes for
+  itself, so a tampered client cannot supply the facts the model reasons from.
+  Stronger than accepting a verdict and verifying its seal, and less code.
+- The sealed numbers reach the prompt as **established fact**, with every lens's
+  tags and quoted spans, and the agent has no tool that writes them back.
+- The interface keeps rendering its own sealed copy. **Verify seal still passes
+  after any amount of conversation** — that is the check to run on stage.
+
+So the worst case is a wrong explanation beside a right verdict, never a wrong
+number. The counterparty's message is untrusted text and is framed as data in
+the prompt; an instruction embedded in it can at most produce misleading prose
+next to a verdict that still convicts, still shows its evidence, and still
+re-hashes correctly in the reader's browser.
+
+READ itself stays stateless (`includeContents: 'none'`, a fresh session per
+request) so two reads of one message cannot differ invisibly. ASK carries its
+transcript in the request instead of a server session, because the ADK session
+store is per-instance and Cloud Run runs several.
+
 ### Failure is visible, never silent
 
 The Day 1 spike found that `Runner.runAsync()` does not throw when a model
@@ -265,10 +331,13 @@ was an untested aspiration that timed out every real call.
 src/
   app/
     api/read/route.ts        request boundary, policy, response re-validation
+    api/ask/route.ts         questions about a sealed verdict; recomputes it
     page.tsx                 landing + READ screen
     architecture/page.tsx    "how it works"
     layout.tsx               nav / footer shell
   components/
+    AnnotatedMessage.tsx     the message, with each lens's spans marked in place
+    AskPanel.tsx             ask Gemini about the verdict; it cannot change it
     ReadCard.tsx             the model's reading, with the uncertainty layer
     FleetPanel.tsx           per-lens severities, core-vs-model divergence, seal strip
     SealVerifier.tsx         recomputes the SHA-256 in the reader's own browser
@@ -287,7 +356,11 @@ src/
     canonical.ts             canonical JSON; client-safe, so the browser can re-hash
     fraction.ts              exact rational arithmetic; no float reaches a seal
     read_verdict.ts          assembles one message's composite verdict
-    state_rules.ts           the deterministic state engine (for TRAIN)
+    ask_prompt.ts            renders the sealed verdict as read-only fact
+    state_rules.ts           the deterministic state engine. Only its
+                             normalise/hash helpers are on a request path; the
+                             rule table and transition chain are written ahead
+                             for practice mode and run only in tests
     models.ts                single source of truth for model IDs
     env.ts                   credential boundary
     types.ts                 NegotiationState, VoiceProfile
@@ -305,9 +378,11 @@ docs/
 corpus/
   read_messages.json         15 READ cases, incl. low-signal and adversarial
   user_moves.json            21 authored classifier cases, 0 field cases
-tests/                       100 tests: determinism, precedence, chain, gate,
-                             policy, lexical coverage, and the scope guard
-scripts/                     doc generator, model probe, calibration, deploy
+tests/                       136 tests: determinism, precedence, chain, gate,
+                             policy, lexical coverage both ways, the scope
+                             guard, prompt injection, and the ASK boundary
+scripts/                     doc generator, model probe, calibration, corpus,
+                             deploy
 ```
 
 ## Known gaps
@@ -344,10 +419,14 @@ the code.
 
 - **The lenses remain lexical heuristics.** The Day 3 miss is fixed — a live
   message that returned CLEAN (only Aristotle firing, while the model said
-  MANIPULATIVE 16/20) now reads PERSUASIVE 61% with three quoted spans, after
-  the Cialdini patterns stopped requiring contractions and strict adjacency.
-  `tests/lexicons.test.ts` locks that in and pairs every widening with a benign
-  twin that must stay quiet. But the lenses still match surface patterns: a
+  MANIPULATIVE 16/20) now reads PERSUASIVE 61% with three quoted spans — and a
+  probe of the other three lenses closed seven more misses while removing five
+  false positives, where an honest message ("you need to sign the NDA", "a risky
+  dependency", "let me be clear about the scope") fired a lens on a bare word.
+  Those five survived only on the corroboration gate, which is luck rather than
+  design. `tests/lexicons.test.ts` locks both directions in and pairs every
+  widening with a benign twin that must stay quiet. But the lenses still match
+  surface patterns: a
   tactic phrased in words no pattern anticipates will be missed by the
   deterministic half, which is exactly why the model votes beside it and why
   the divergence is shown rather than averaged.

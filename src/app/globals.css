@@ -1,45 +1,221 @@
 @import "tailwindcss";
 
 /**
- * GAMBIT YourMove — base tokens.
+ * GAMBIT YourMove — design tokens.
  *
- * The interface is dark-only for now. That is a product decision, not an
- * oversight: the app is used while the user is mid-negotiation and looking at
- * their own inbox in another window, and a single, quiet surface keeps the
- * READ card the only thing competing for attention. A light theme is a Day-3
- * question if it earns its place.
+ * ============================================================================
+ * THE IDEA: CLOSE READING
+ * ============================================================================
  *
- * Fonts are a system stack — see the note in layout.tsx for why this project
- * does not fetch webfonts at build time.
+ * This product's entire discipline is "quote, do not paraphrase" — a claim it
+ * cannot back with the counterparty's own words is a claim it does not make.
+ * The interface is built around that: the MESSAGE is the lit surface of the
+ * page, set on warm paper, and the analysts mark their findings ON the text
+ * rather than describing them in a panel beside it. Everything else is
+ * instrumentation in the dark around a document under examination.
+ *
+ * Two consequences run through the tokens below.
+ *
+ * TYPE ENCODES WHO IS SPEAKING. The counterparty's words are set in a serif —
+ * it is someone's writing, meant to be read. Every reading OF those words is
+ * set in mono. A glance tells you which is testimony and which is analysis.
+ *
+ * THE LINE ENCODES WHAT CAN BE REPLAYED. A deterministic lens underlines with a
+ * solid rule. Gemini underlines with a dashed one. The distinction the whole
+ * architecture rests on — sealed and reproducible versus best-effort — is
+ * legible without reading a single label.
+ *
+ * Dark-only, still deliberately: the user is mid-negotiation with their inbox
+ * open in another window, and one quiet surface keeps the message the only
+ * thing competing for attention.
  */
 
 :root {
-  --background: #0a0a0b;
-  --foreground: #ededed;
+  /* Ground: a cool ink, not a true black. Black is flat under a projector and
+     leaves nowhere to go for the panels that sit on top of it. */
+  --ink: #12151b;
+  --ink-raised: #191d25;
+  --ink-line: #272c36;
+
+  /* The message surface. The one warm, bright thing on the page. */
+  --paper: #f2efe7;
+  --paper-edge: #ddd8cb;
+  --paper-ink: #1e2127;
+  --paper-faint: #6b6862;
+
+  --text: #e8e6e1;
+  --text-dim: #9ca1ab;
+  --text-faint: #6d7480;
+
+  /* One lens, one hue. Chosen to stay distinguishable from each other and to
+     read on paper; the -lit variants are the same hues raised for the ink. */
+  --lens-cialdini: #b23a2c;
+  --lens-cialdini-lit: #e4796a;
+  --lens-aristotle: #a06a12;
+  --lens-aristotle-lit: #dfa63f;
+  --lens-grice: #1d6f6b;
+  --lens-grice-lit: #4fb3ad;
+  --lens-berne: #55499a;
+  --lens-berne-lit: #9b8fe0;
+  /* The model is deliberately outside the lens palette — it is a different
+     kind of witness, and it never gets the authority of a rule. */
+  --lens-gemini: #4a5568;
+  --lens-gemini-lit: #a9b4c4;
+
+  /* Verdict register: a single warming ramp, quiet to alarmed. */
+  --v-clean: #4d9c7f;
+  --v-mixed: #c3922f;
+  --v-persuasive: #d1743a;
+  --v-manipulative: #cf5341;
+
+  --background: var(--ink);
+  --foreground: var(--text);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--ink);
+  --color-foreground: var(--text);
+  --color-ink: var(--ink);
+  --color-ink-raised: var(--ink-raised);
+  --color-ink-line: var(--ink-line);
+  --color-paper: var(--paper);
+  --color-paper-edge: var(--paper-edge);
+  --color-paper-ink: var(--paper-ink);
+  --color-paper-faint: var(--paper-faint);
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --color-text-faint: var(--text-faint);
+
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
     Arial, sans-serif;
   --font-mono:
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
     monospace;
+  /* The counterparty's voice. A serif, because it is correspondence. */
+  --font-read:
+    "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia,
+    "Times New Roman", serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--ink);
+  color: var(--text);
+  /* Sans for prose. Mono is reserved for instrument labels, hashes and
+     figures — if everything is monospaced, nothing reads as data. */
   font-family: var(--font-sans);
+  font-feature-settings: "kern" 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Instrument labels. Everything that is machinery talking rather than a person
+   uses this: small, spaced, upper. It should read like panel silkscreen.
+--------------------------------------------------------------------------- */
+.label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ---------------------------------------------------------------------------
+   The document under examination.
+--------------------------------------------------------------------------- */
+.paper {
+  background: var(--paper);
+  color: var(--paper-ink);
+  font-family: var(--font-read);
+  /* A hairline warm edge and a lift, so it reads as a sheet on a surface
+     rather than a filled rectangle. */
+  border: 1px solid var(--paper-edge);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 18px 40px -18px rgba(0, 0, 0, 0.85);
 }
 
 /**
- * Brand accent — the indigo -> violet -> fuchsia gradient carried over from the
- * sibling detection tools (wolf-and-cronos, corvus). Used sparingly: the fleet
- * grid's active agents, the score-bar fill, and the wordmark. Everything else
- * stays quiet so the verdict is what the eye lands on.
+ * An annotated span: the lens's colour laid under the counterparty's own words.
+ *
+ * `box-shadow` rather than `text-decoration` so the rule sits a little below the
+ * baseline and survives wrapping. `--mark` is set per span by the component.
+ */
+.mark {
+  box-shadow: inset 0 -0.42em 0 -0.28em color-mix(in srgb, var(--mark) 26%, transparent);
+  border-bottom: 2px solid var(--mark);
+  padding-bottom: 1px;
+  transition: background-color 140ms ease, box-shadow 140ms ease;
+}
+
+/* Gemini's marks are dashed. Best-effort is visible before it is explained. */
+.mark--model {
+  border-bottom-style: dashed;
+}
+
+/* Dimmed while another lens is being isolated. */
+.mark--muted {
+  box-shadow: none;
+  border-bottom-color: color-mix(in srgb, var(--mark) 28%, transparent);
+}
+
+/* Raised while its lens is hovered or focused in the margin. */
+.mark--active {
+  box-shadow: inset 0 -0.95em 0 -0.05em color-mix(in srgb, var(--mark) 22%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   Stamped certification. The sealed verdict is a stamped document, so it is
+   stamped: rotated, ruled, monospaced.
+--------------------------------------------------------------------------- */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  transform: rotate(-1.5deg);
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Ruled paper texture for instrument panels — horizontal, like a log sheet. */
+.ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 27px,
+    rgba(255, 255, 255, 0.022) 27px,
+    rgba(255, 255, 255, 0.022) 28px
+  );
+}
+
+/* Focus that is actually visible, on both surfaces. */
+:where(button, a, textarea, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--lens-aristotle-lit);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/**
+ * Accent utilities used by the THINK / TRAIN / Assistant surfaces. Kept so those
+ * screens render while they are being re-skinned onto the read view's design
+ * tokens. The indigo->violet->fuchsia gradient is the one visual thread across
+ * the generative surfaces.
  */
 .brand-gradient {
   background-image: linear-gradient(135deg, #615ced 0%, #a855f7 55%, #d946ef 100%);
@@ -52,44 +228,11 @@ body {
   color: transparent;
 }
 
-/* The sealed core's pulse — a heartbeat on the deterministic verdict only. */
-@keyframes seal-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(168, 85, 247, 0);
-  }
-  50% {
-    box-shadow: 0 0 18px 0 rgba(168, 85, 247, 0.25);
-  }
-}
-
-/**
- * Tilted certification stamp — the forensic-seal aesthetic borrowed from
- * vigia-repo. A slight rotation + mono + a solid border block reads as a
- * stamped, certified document, which is exactly what the sealed verdict is.
- */
-.stamp {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
-  transform: rotate(-2deg);
-  border: 1.5px solid currentColor;
-  border-radius: 4px;
-  padding: 4px 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-/* Faint dot-grid backdrop for the verdict panel — instrument-panel texture. */
 .dot-grid {
   background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
-/* Subtle brand glow bleeding down from the top of the page. */
 .app-glow {
   background: radial-gradient(ellipse 60% 100% at 50% 0%, rgba(168, 85, 247, 0.1), transparent 70%);
 }

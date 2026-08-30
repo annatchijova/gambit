@@ -19,14 +19,14 @@ function GitHubMark() {
 
 export function Nav() {
   return (
-    <header className="sticky top-0 z-20 border-b border-white/8 bg-[#0a0a0b]/80 backdrop-blur-md">
+    <header className="sticky top-0 z-20 border-b border-ink-line bg-ink/85 backdrop-blur-md">
       <nav className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-3">
         <Link href="/" className="group flex items-center gap-2">
-          <span className="brand-gradient flex h-6 w-6 items-center justify-center rounded font-mono text-xs font-bold text-white">
+          <span className="flex h-6 w-6 items-center justify-center rounded-sm bg-paper font-mono text-xs font-bold text-paper-ink">
             G
           </span>
-          <span className="brand-text text-sm font-semibold tracking-wide">GAMBIT</span>
-          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/30">YourMove</span>
+          <span className="text-sm font-semibold tracking-wide text-text">GAMBIT</span>
+          <span className="label">YourMove</span>
         </Link>
 
         <div className="flex items-center gap-1 text-sm">
@@ -44,7 +44,7 @@ export function Nav() {
           </Link>
           <Link
             href="/architecture"
-            className="rounded-md px-3 py-1.5 text-white/60 transition hover:bg-white/5 hover:text-white/90"
+            className="rounded-sm px-3 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text"
           >
             How it works
           </Link>
@@ -52,7 +52,7 @@ export function Nav() {
             href={REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-white/60 transition hover:bg-white/5 hover:text-white/90"
+            className="flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text"
           >
             <GitHubMark />
             GitHub
