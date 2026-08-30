@@ -116,7 +116,7 @@ git-ignored, `tsc` alone fails on any clean checkout. `typegen` costs well under
 a second, so `verify` stays cheap.
 
 Nothing in `verify` touches the network, so it runs the same on a laptop, in
-CI and on a plane. It currently reports **78 tests across 6 files**, and
+CI and on a plane. It currently reports **90 tests across 7 files**, and
 `calibrate:rules` **21/21** on the authored corpus.
 
 ### Calibrate
@@ -286,7 +286,8 @@ docs/
 corpus/
   read_messages.json         15 READ cases, incl. low-signal and adversarial
   user_moves.json            21 authored classifier cases, 0 field cases
-tests/                       78 tests: determinism, precedence, chain, gate, policy
+tests/                       90 tests: determinism, precedence, chain, gate,
+                             policy, and lexical coverage with benign twins
 scripts/                     doc generator, model probe, calibration, deploy
 ```
 
@@ -317,12 +318,15 @@ the code.
   finding. Supporting a second language means porting all four lexicons, not
   translating the interface.
 
-- **The lexical lenses under-match real phrasing.** On a live read of a
-  blatantly manipulative message, the fleet returned CLEAN (only Aristotle
-  fired) while the model returned MANIPULATIVE 16/20: the patterns require
-  contractions and adjacency that real messages do not have. The divergence
-  panel surfaced the split correctly — the architecture working as designed —
-  but broadening the Cialdini / Grice / Berne lexicons is the next quality task.
+- **The lenses remain lexical heuristics.** The Day 3 miss is fixed — a live
+  message that returned CLEAN (only Aristotle firing, while the model said
+  MANIPULATIVE 16/20) now reads PERSUASIVE 61% with three quoted spans, after
+  the Cialdini patterns stopped requiring contractions and strict adjacency.
+  `tests/lexicons.test.ts` locks that in and pairs every widening with a benign
+  twin that must stay quiet. But the lenses still match surface patterns: a
+  tactic phrased in words no pattern anticipates will be missed by the
+  deterministic half, which is exactly why the model votes beside it and why
+  the divergence is shown rather than averaged.
 - **Latency is ~10–14 s warm on the critical path.** Acceptable behind a real
   loading state, but the structured-output schema is the lever if it has to come
   down.
