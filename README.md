@@ -135,6 +135,21 @@ messages a real user typed, can say anything about accuracy, and it is still
 empty. `docs/classifier_report.md` is generated from this run and says the same
 thing at more length.
 
+**Growing the field corpus.** The field set is the only thing here that could
+support an accuracy claim, and it is empty — friction is why. One command adds a
+real message:
+
+```bash
+npm run corpus:field -- --expect PRESSURE_TEST --message "I need an answer by Friday."
+npm run corpus:field -- --list
+```
+
+`--expect` is required *before* anything is classified, and the engine's answer
+prints only after the case is written. That ordering is the point: a label
+chosen after seeing the engine's output is the engine grading itself through an
+anchored human. When the two disagree, the disagreement is the finding — fix the
+rule or record that it is wrong, but never edit the label to match.
+
 `calibrate:read` runs the full HTTP route and writes
 `docs/read_test_log.md` with a blank verdict line per case. It deliberately
 does not score itself: a model grading its own tactic labels produces a
@@ -309,7 +324,8 @@ corpus/
 tests/                       119 tests: determinism, precedence, chain, gate,
                              policy, lexical coverage both ways, the scope
                              guard, and prompt injection against the core
-scripts/                     doc generator, model probe, calibration, deploy
+scripts/                     doc generator, model probe, calibration, corpus,
+                             deploy
 ```
 
 ## Known gaps

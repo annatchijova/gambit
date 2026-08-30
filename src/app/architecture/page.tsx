@@ -40,8 +40,10 @@ export default function Architecture() {
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-16">
       <header>
         <p className="label">Architecture</p>
-        <h1 className="mt-2 text-3xl font-medium tracking-tight text-white">
-          The model narrates the verdict. It never decides it.
+        <h1 className="mt-3 max-w-3xl font-[family-name:var(--font-read)] text-[2.3rem] font-normal leading-[1.15] tracking-[-0.02em] text-text">
+          The model narrates the verdict.
+          <br />
+          It never decides it.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-text-dim">
           A language model can read the evidence correctly and still reach the wrong conclusion under
@@ -52,15 +54,59 @@ export default function Architecture() {
 
       <PipelineDiagram />
 
+      {/* The reading key. This page argues that a rule and a model are
+          different kinds of witness; the interface already says so in the
+          marks, so show that here rather than asserting it again in prose. */}
       <section>
-        <h2 className="mb-3 font-mono text-[10px] uppercase tracking-[0.22em] text-text-faint">
-          What that buys — three guarantees
-        </h2>
+        <h2 className="label mb-3">How to read a marked message</h2>
+        <div className="paper rounded-sm px-7 py-6 sm:px-9 sm:py-7">
+          <p className="m-0 text-[17px] leading-[1.8]">
+            This price is{' '}
+            <span className="mark" style={{ '--mark': 'var(--lens-cialdini)' } as React.CSSProperties}>
+              only good until midnight
+            </span>
+            , and after everything I have done for you I think that is{' '}
+            <span
+              className="mark mark--model"
+              style={{ '--mark': 'var(--lens-gemini)' } as React.CSSProperties}
+            >
+              more than fair
+            </span>
+            .
+          </p>
+          <dl className="mt-6 grid gap-x-8 gap-y-3 border-t pt-5 text-[13px] sm:grid-cols-2" style={{ borderColor: 'var(--paper-edge)' }}>
+            <div>
+              <dt className="font-semibold" style={{ color: 'var(--lens-cialdini)' }}>
+                Solid — a rule
+              </dt>
+              <dd className="m-0 mt-1 leading-relaxed" style={{ color: 'var(--paper-faint)' }}>
+                One of four deterministic lenses matched, and lifted this span from your text. Sealed
+                before any model ran. Same message, same mark, every time.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold" style={{ color: 'var(--lens-gemini)' }}>
+                Dashed — the model
+              </dt>
+              <dd className="m-0 mt-1 leading-relaxed" style={{ color: 'var(--paper-faint)' }}>
+                Gemini quoted this. It catches paraphrase no rule anticipated, and it is best-effort:
+                two runs can differ, so nothing it touches is claimed replayable.
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="label mb-3">What that buys — three guarantees</h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {GUARANTEES.map((g) => (
-            <div key={g.n} className="rounded-sm border border-ink-line bg-ink-raised p-4">
-              <span className="font-mono text-xs text-text-faint">{g.n}</span>
-              <h3 className="mt-1 text-sm font-semibold text-text">{g.title}</h3>
+            <div
+              key={g.title}
+              className="rounded-sm border border-ink-line bg-ink-raised p-4"
+              style={{ borderTopColor: 'var(--v-clean)', borderTopWidth: '2px' }}
+            >
+              <h3 className="text-sm font-semibold text-text">{g.title}</h3>
               <p className="mt-1.5 text-[13px] leading-relaxed text-text-dim">{g.body}</p>
             </div>
           ))}
@@ -68,7 +114,7 @@ export default function Architecture() {
       </section>
 
       <section className="rounded-sm border border-ink-line bg-ink-raised p-6">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.22em] text-text-faint">Lineage</h2>
+        <h2 className="label">Lineage</h2>
         <p className="mt-2 max-w-2xl text-sm text-text-dim">
           The architecture is ported from a family of deterministic manipulation-detection tools — the same
           DNA, applied to negotiation:
@@ -86,7 +132,7 @@ export default function Architecture() {
       <div>
         <Link
           href="/"
-          className="inline-flex rounded-sm bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-white/90"
+          className="inline-flex rounded-sm bg-paper px-5 py-2 text-sm font-semibold text-paper-ink transition hover:bg-white"
         >
           Try it on a message →
         </Link>

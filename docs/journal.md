@@ -147,4 +147,105 @@ too rigid (they require contractions and adjacency the real message did not
 have). Broadening the Cialdini/Grice/Berne patterns is the next quality task;
 the divergence display is what makes the gap visible instead of silent.
 
-## Day 4 — _(pending)_
+## Day 4 — the lenses convicted the innocent; the UI hid the evidence
+
+**CODE FACT.** `npm run verify` failed on every clean checkout:
+`src/app/layout.tsx(24,50): error TS2304: Cannot find name 'LayoutProps'`.
+`LayoutProps` is one of Next 16's route-aware global helpers — generated into
+`.next/types` by `next dev`, `next build` or `next typegen`, never imported.
+`tsconfig.json` includes `.next/types/**/*.ts`, but `.next/` is git-ignored, so
+a fresh clone has no such file. The usage came from the create-next-app scaffold
+in the initial commit, where it was correct; it only became a failure once
+`verify` was expected to run on an unbuilt tree. Fixed by running `next typegen`
+before `tsc` (0.57 s, versus ~15 s for a full build).
+
+**CODE FACT.** Nothing ran `verify` automatically. There was no `.github/`
+at all, which is how the above stayed invisible — a judge cloning the repository
+lands in exactly that state. CI added; it passed on the first run.
+
+**FALSIFIED — and this is the one that matters.** The Day 3 entry framed the
+lexicon problem as under-matching, and the plan was to widen. Probing the three
+lenses that had not yet been touched found the opposite failure as well: five
+ordinary, honest negotiation messages each fired a lens.
+
+    "Let's focus on the numbers first"          -> Grice RELATION_deflection
+    "Frankly I think we can close this today"   -> Berne PARENT_critical
+    "Let me be clear about the scope"           -> Berne PARENT_critical
+    "You need to sign the NDA, that is policy"  -> Aristotle PATHOS_pressure
+    "a risky dependency, so I priced a buffer"  -> Aristotle PATHOS_fear
+
+All five still returned CLEAN — but only because the corroboration gate needs
+two lenses. That is luck, not design: two such markers in one honest message
+convict someone who did nothing, and the landing page promises the tool does not
+cry wolf. Cause in every case was a bare word or discourse marker carrying a
+whole category. Both directions are now tested, and every widening is paired
+with a benign twin that must stay silent.
+
+**CONFIRMED (was the Day 3 CODE FACT).** The live message that returned CLEAN
+0% with only Aristotle firing now reads PERSUASIVE 61%, corroborated by two
+lenses, with all three levers quoted verbatim. Settled by reproducing the
+failure first and adding it as a regression before touching a pattern.
+
+**CODE FACT — a silent degradation that had been there all along.** Every lens
+is an English pattern, so a non-English message matched nothing and came back
+CLEAN, zero corroboration, and — because a quiet fleet with nothing crashed
+counts as a confident read — **High confidence**. A confident all-clear on a
+message the engine never read, in an architecture whose whole claim is that it
+has none. Measured on the same message in two languages:
+
+    EN: MIXED  43%  corroboration=2  active=[cialdini, aristotle]
+    ES: CLEAN   0%  corroboration=0  active=[]
+
+Closed by `src/lib/frameworks/scope.ts`: verdicts carry `coverage`, confidence
+drops to Low, and the panel says NO VERDICT with the reason. Validated at both
+ends — zero false positives across all 36 English corpus messages, terse
+classifier cases included, and four non-English languages flagged.
+
+**FALSIFIED.** Assumed the scope guard was sufficient once the core reported it.
+It was not: `composeVerdict` was still blending the out-of-scope core's 0 —
+which means "no rule could look", not "nothing found" — against the model's
+vote, and the divergence panel reported the rule engine as "saying CLEAN" about
+a message it never read. Found by looking at a screenshot, not by a test. The
+model's vote now stands alone and is labelled as standing alone.
+
+**CODE FACT.** `runFleet` built the seal payload to hash it and
+`verifyFleetSeal` rebuilt it to check, from two separate copies of the same
+object literal — one edit from disagreeing, with a silent failure mode. Both now
+read one definition in `seal_payload.ts`, which the browser shares. Seals
+verified byte-identical across the refactor by computing them on both sides of a
+`git stash`, rather than trusting that the tests would have noticed.
+
+**CODE FACT.** The fleet is structurally immune to prompt injection — regular
+expressions do not follow instructions. Four injection shapes cannot force CLEAN
+on a manipulative message, cannot manufacture a conviction on an honest one, and
+evidence stays verbatim when the input is shaped like markup or JSON. This is
+the concrete payoff of keeping the model out of the decision, so it is asserted
+now rather than assumed.
+
+**CODE FACT — the interface was arguing against itself.** The product's whole
+discipline is "quote, do not paraphrase", and the quotes were a list of
+fragments in a side panel, leaving the reader to match them back to the message.
+Rebuilt around the message as the lit surface, with each lens marking its spans
+in place: type says who is speaking (serif for the counterparty, mono for every
+reading of them), and the line says what can be replayed (solid for a rule,
+dashed for Gemini). Three UI faults only a browser revealed: prose set in mono
+throughout, the paper sheet stretching to the margin's height, and the two scale
+markers overprinting each other precisely when the readings were close.
+
+**HYPOTHESIS — unchanged and still blocking the accuracy question.** The field
+corpus is empty, so nothing in this repository licenses a statement about
+whether either engine labels messages the way a human coach would. **Settled
+by:** real messages, typed by real users and labelled afterwards. It cannot be
+settled by writing more cases — an authored case says only that the
+implementation matches its author's intent.
+
+**HYPOTHESIS — still open.** The uncertainty layer is real rather than
+decorative. **Settled by:** the two `lowsignal-*` cases returning **Low** in a
+live `npm run calibrate:read`. Not yet run against a live model; the sandbox
+this work was done in cannot reach either backend.
+
+**HYPOTHESIS — still open.** READ analyses `adversarial-01`'s embedded
+instruction instead of obeying it. The deterministic half is now proven immune;
+the model half is not. **Settled by:** the same live calibration run.
+
+## Day 5 — _(pending)_
