@@ -1,149 +1,140 @@
-import type { CompositeVerdict, FleetLevel, SealedSignal } from '@/lib/frameworks';
+import type { CompositeVerdict } from '@/lib/frameworks';
+import { LENS_COLOR, LEVEL_COLOR, LEVEL_STYLE, LEVEL_TICKS, levelFromPercent } from './verdict_ui';
 import { SealVerifier } from './SealVerifier';
-import {
-  FRAMEWORK_META,
-  LEVEL_BAR,
-  LEVEL_STYLE,
-  LEVEL_TICKS,
-  SEMANTIC_META,
-  levelFromPercent,
-} from './verdict_ui';
 
 /**
- * GAMBIT YourMove — the fleet panel.
+ * GAMBIT YourMove — the instrument panel.
  *
- * Where the architecture becomes visible, in the dark forensic aesthetic of the
- * sibling tools: a stamped, sealed verdict (vigia-repo), a row of analyst agents
- * that light up (wolf-and-cronos), and a chain-of-custody strip. A row of
- * deterministic lenses reads the message; the Gemini lens sits beside them; the
- * rule engine and the model are shown agreeing or splitting, never averaged.
+ * This sits BELOW the annotated message, and that order is the argument: the
+ * evidence is the thing, and everything here is a reading of it. So the panel
+ * carries only what the marked-up text cannot say for itself —
+ *
+ *   the verdict and how sure it is;
+ *   where the rules and the model disagree;
+ *   proof that none of it was altered after sealing.
+ *
+ * The per-lens grid that used to live here is gone: AnnotatedMessage's margin
+ * says the same thing while pointing at the words that caused it, and saying it
+ * twice made the page long without making it clearer.
  *
  * All display. Every number here was decided and sealed server-side.
  */
 
 export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
   const { core, semantic, divergence } = verdict;
-  const s = LEVEL_STYLE[verdict.level];
+  const style = LEVEL_STYLE[verdict.level];
   const bestEffort = verdict.determinismLevel === 'best_effort_with_semantic';
   // The lenses are English patterns. When they could not read the message at
-  // all, "CLEAN" would be a confident all-clear on something never read — so
-  // the hero says so instead of showing a reassuring zero. See lib/frameworks/scope.ts.
+  // all, a clean-looking zero would be a confident all-clear on something never
+  // read. See lib/frameworks/scope.ts.
   const outOfScope = core.coverage === 'out_of_scope';
+  const modelSpoke = Boolean(semantic?.available);
 
   return (
-    <section className="dot-grid overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
+    <section className="overflow-hidden rounded-sm border border-ink-line bg-ink-raised">
       {outOfScope && (
-        <div className="border-b border-amber-500/40 bg-amber-500/10 px-6 py-3">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-300">
+        <div
+          className="border-b border-ink-line px-6 py-3.5"
+          style={{ background: 'color-mix(in srgb, var(--v-mixed) 12%, transparent)' }}
+        >
+          <p className="label" style={{ color: 'var(--v-mixed)' }}>
             Outside the rule engine&rsquo;s scope
           </p>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-amber-100/90">
+          <p className="mt-1.5 max-w-2xl text-[13px] leading-relaxed text-text">
             {core.scopeReason}
           </p>
         </div>
       )}
 
-      {/* Verdict hero -------------------------------------------------------- */}
-      <div className={`border-b border-white/8 p-6`}>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
-              {outOfScope ? 'Model-only reading — nothing sealed by the rules' : 'Sealed verdict'}
-            </p>
-            <div className="mt-1 flex items-baseline gap-3">
-              <span className={`font-mono text-3xl font-bold tracking-tight ${s.text}`}>
-                {semantic?.available ? verdict.level : 'NO VERDICT'}
-              </span>
-              {(!outOfScope || semantic?.available) && (
-                <span className="font-mono text-lg tabular-nums text-white/40">
-                  {verdict.scorePercent}%
-                </span>
-              )}
-            </div>
-            <p className="mt-1.5 max-w-md text-sm text-white/50">
-              {outOfScope
-                ? semantic?.available
-                  ? 'Gemini read this message; the rule engine could not. Nothing here is corroborated by a deterministic lens, so it rests on one unverifiable opinion.'
-                  : 'No rule matched, because none could read this message — and the model did not answer either. That is not the same as finding nothing wrong.'
-                : s.gloss}
-            </p>
-          </div>
-
-          <div className="flex flex-col items-end gap-2">
-            <span className={`stamp ${bestEffort ? 'text-violet-300' : 'text-emerald-300'}`}>
-              {bestEffort ? '◆ sealed + model' : '✓ sealed'}
-            </span>
-            <span className="text-xs text-white/40">{verdict.confidence} confidence</span>
+      {/* Verdict ------------------------------------------------------------ */}
+      <div className="ruled flex flex-wrap items-start justify-between gap-x-10 gap-y-5 border-b border-ink-line p-6">
+        <div className="min-w-0">
+          <p className="label">
+            {outOfScope ? 'Model-only reading — nothing sealed by the rules' : 'Sealed verdict'}
+          </p>
+          <div className="mt-2 flex items-baseline gap-3">
             <span
-              className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium tracking-wide ${
-                bestEffort
-                  ? 'border-amber-500/40 bg-amber-500/10 text-amber-300'
-                  : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
-              }`}
-              title={
-                bestEffort
-                  ? 'The score includes the model’s vote and is not bit-for-bit replayable.'
-                  : 'No usable model vote — this verdict is the deterministic core, replayable exactly.'
-              }
+              className="font-mono text-[2rem] font-bold leading-none tracking-tight"
+              style={{ color: modelSpoke ? LEVEL_COLOR[verdict.level] : 'var(--v-mixed)' }}
             >
-              {outOfScope ? 'model only · rules out of scope' : bestEffort ? 'best-effort' : 'deterministic · replayable'}
+              {modelSpoke || !outOfScope ? verdict.level : 'NO VERDICT'}
             </span>
+            {(modelSpoke || !outOfScope) && (
+              <span className="font-mono text-lg tabular-nums text-text-faint">
+                {verdict.scorePercent}%
+              </span>
+            )}
           </div>
+          <p className="mt-2 max-w-md text-[13px] leading-relaxed text-text-dim">
+            {outOfScope
+              ? modelSpoke
+                ? 'Gemini read this message; the rules could not. Nothing here is corroborated by a deterministic lens, so it rests on one unverifiable opinion.'
+                : 'No rule matched, because none could read this message — and the model did not answer either. That is not the same as finding nothing wrong.'
+              : style.gloss}
+          </p>
         </div>
 
-        {/* The core marker would read 0% here, which means "unread", not
-            "clean" — a bar cannot say that, so it is not drawn. */}
-        {!outOfScope && (
-          <ScoreBar compositePercent={verdict.scorePercent} corePercent={core.scorePercent} />
-        )}
+        <div className="flex shrink-0 flex-col items-end gap-2.5">
+          <span
+            className="stamp"
+            style={{ color: bestEffort ? 'var(--lens-gemini-lit)' : 'var(--v-clean)' }}
+          >
+            {bestEffort ? '◆ sealed + model' : '✓ sealed'}
+          </span>
+          <span className="label !tracking-[0.12em]">{verdict.confidence} confidence</span>
+          <span
+            className="rounded-sm border px-2.5 py-1 font-mono text-[10px] tracking-wide"
+            style={{
+              color: outOfScope || bestEffort ? 'var(--v-mixed)' : 'var(--v-clean)',
+              borderColor: `color-mix(in srgb, ${
+                outOfScope || bestEffort ? 'var(--v-mixed)' : 'var(--v-clean)'
+              } 45%, transparent)`,
+            }}
+            title={
+              bestEffort
+                ? 'The score includes the model’s vote and is not bit-for-bit replayable.'
+                : 'No usable model vote — this verdict is the deterministic core, replayable exactly.'
+            }
+          >
+            {outOfScope
+              ? 'model only · rules out of scope'
+              : bestEffort
+                ? 'best-effort'
+                : 'deterministic · replayable'}
+          </span>
+        </div>
       </div>
 
-      <div className="space-y-6 p-6">
-        {/* Divergence: rule engine vs model -------------------------------- */}
+      <div className="space-y-7 p-6">
+        {/* Where the two readers land -------------------------------------- */}
         {divergence && semantic?.available && (
           <div>
-            <SectionLabel n="01">Rule engine vs model</SectionLabel>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <MethodCard title="Deterministic fleet" level={divergence.coreLevel} percent={core.scorePercent} />
-              <MethodCard
-                title={`Gemini · ${semantic.grid}/20`}
-                level={divergence.semanticLevel}
-                percent={semantic.severityPercent}
-              />
-            </div>
+            <h3 className="label mb-4">Rules and model, on one scale</h3>
+            <ReadingScale
+              rulesPercent={core.scorePercent}
+              modelPercent={semantic.severityPercent}
+              agree={divergence.agree}
+            />
             <p
-              className={`mt-3 rounded-lg border px-3 py-2 text-sm ${
+              className="mt-4 rounded-sm border-l-2 px-3.5 py-2.5 text-[13px] leading-relaxed"
+              style={
                 divergence.agree
-                  ? 'border-white/10 bg-white/[0.02] text-white/55'
-                  : 'border-amber-500/40 bg-amber-500/10 text-amber-200'
-              }`}
+                  ? { borderColor: 'var(--ink-line)', color: 'var(--text-dim)' }
+                  : {
+                      borderColor: 'var(--v-mixed)',
+                      background: 'color-mix(in srgb, var(--v-mixed) 9%, transparent)',
+                      color: 'var(--text)',
+                    }
+              }
             >
               {divergence.note}
             </p>
           </div>
         )}
 
-        {/* Fleet grid ------------------------------------------------------ */}
-        <div>
-          <SectionLabel n="02">
-            The fleet — {core.corroboration}/{core.signals.length} rule agents fired
-            {core.gatePassed ? '' : ' · below gate'}
-          </SectionLabel>
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-            {core.signals.map((sig) => (
-              <AgentCard
-                key={sig.framework}
-                signal={sig}
-                fired={core.activeFrameworks.includes(sig.framework)}
-              />
-            ))}
-            {semantic && <SemanticCard semantic={semantic} level={divergence?.semanticLevel} />}
-          </div>
-        </div>
-
-        {/* Chain of custody ------------------------------------------------ */}
+        {/* Chain of custody ------------------------------------------------- */}
         <div className="space-y-3">
-          <SectionLabel n="03">Chain of custody</SectionLabel>
+          <h3 className="label">Chain of custody</h3>
           <SealChain verdict={verdict} />
           {/* The claim above is checkable, so let the reader check it. */}
           <SealVerifier verdict={verdict} />
@@ -153,150 +144,131 @@ export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
   );
 }
 
-function ScoreBar({ compositePercent, corePercent }: { compositePercent: number; corePercent: number }) {
+/**
+ * One axis, two markers.
+ *
+ * The old panel put the rules and the model in two cards side by side, which
+ * shows both numbers and hides the only thing worth seeing: the DISTANCE
+ * between them. On a shared scale, agreement is two markers nearly touching and
+ * a split is a visible gap — the architecture's whole point, read at a glance.
+ */
+function ReadingScale({
+  rulesPercent,
+  modelPercent,
+  agree,
+}: {
+  rulesPercent: number;
+  modelPercent: number;
+  agree: boolean;
+}) {
+  const lo = Math.min(rulesPercent, modelPercent);
+  const hi = Math.max(rulesPercent, modelPercent);
+
   return (
-    <div className="mt-5">
-      <div className="relative h-3 w-full rounded-full border border-white/10 bg-black/40">
-        <div
-          className="brand-gradient h-full rounded-full transition-[width] duration-700 ease-out"
-          style={{ width: `${compositePercent}%` }}
-        />
-        <div
-          className="absolute top-1/2 h-4 w-0.5 -translate-y-1/2 rounded bg-white/80"
-          style={{ left: `${corePercent}%` }}
-          title={`Deterministic core alone: ${corePercent}%`}
-        />
+    <div className="pt-7">
+      <div className="relative h-9 rounded-sm border border-ink-line bg-ink">
+        {/* Level bands, so a position means something without reading numbers. */}
         {LEVEL_TICKS.map((t) => (
-          <div key={t.label} className="absolute top-0 h-full w-px bg-white/15" style={{ left: `${t.at}%` }} />
+          <span
+            key={t.label}
+            className="absolute top-0 h-full w-px bg-ink-line"
+            style={{ left: `${t.at}%` }}
+          />
+        ))}
+
+        {/* The gap between the two readings, drawn as a gap. */}
+        {!agree && (
+          <span
+            className="absolute top-1/2 h-0.5 -translate-y-1/2"
+            style={{
+              left: `${lo}%`,
+              width: `${hi - lo}%`,
+              background:
+                'repeating-linear-gradient(90deg, var(--v-mixed) 0 3px, transparent 3px 6px)',
+            }}
+          />
+        )}
+
+        <Marker percent={rulesPercent} color="var(--v-clean)" label="rules" solid above />
+        <Marker
+          percent={modelPercent}
+          color={LENS_COLOR.gemini.lit}
+          label="gemini"
+          solid={false}
+          above={false}
+        />
+      </div>
+
+      {/* Band names sit at the position each band STARTS, not spread evenly —
+          the label has to mean the same thing as the tick beside it. */}
+      <div className="relative mt-14 h-3">
+        {(
+          [
+            { at: 0, name: 'clean' },
+            { at: 25, name: 'mixed' },
+            { at: 50, name: 'persuasive' },
+            { at: 75, name: 'manip.' },
+          ] as const
+        ).map((b) => (
+          <span
+            key={b.name}
+            className="label absolute top-0 !text-[9px]"
+            style={{ left: `${b.at}%`, transform: b.at === 0 ? 'none' : 'translateX(2px)' }}
+          >
+            {b.name}
+          </span>
         ))}
       </div>
-      <div className="mt-1 flex justify-between font-mono text-[9px] uppercase tracking-[0.15em] text-white/25">
-        <span>clean</span>
-        <span>mixed</span>
-        <span>persuasive</span>
-        <span>manip.</span>
-      </div>
-      <p className="mt-1.5 text-right font-mono text-[11px] tabular-nums text-white/40">
-        composite {compositePercent}% · core marker {corePercent}%
-      </p>
     </div>
   );
 }
 
-function MethodCard({ title, level, percent }: { title: string; level: FleetLevel; percent: number }) {
-  const s = LEVEL_STYLE[level];
-  return (
-    <div className="overflow-hidden rounded-lg border border-white/10 bg-black/20">
-      <div className={`h-1 w-full ${LEVEL_BAR[level]}`} />
-      <div className="p-3">
-        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/35">{title}</p>
-        <div className="mt-1 flex items-baseline justify-between">
-          <span className={`font-mono text-sm font-bold ${s.text}`}>{level}</span>
-          <span className="font-mono text-sm tabular-nums text-white/50">{percent}%</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AgentCard({ signal, fired }: { signal: SealedSignal; fired: boolean }) {
-  const meta = FRAMEWORK_META[signal.framework];
-  const accent = fired ? LEVEL_BAR[levelFromPercent(signal.severityPercent)] : 'bg-white/10';
-  return (
-    <div
-      className={`overflow-hidden rounded-lg border transition ${
-        fired
-          ? 'border-fuchsia-500/30 bg-fuchsia-500/[0.05] shadow-[0_0_16px_rgba(168,85,247,0.12)]'
-          : 'border-white/8 bg-white/[0.01]'
-      }`}
-    >
-      <div className={`h-0.5 w-full ${accent}`} />
-      <div className="p-3">
-        <div className="flex items-center gap-2">
-          <span
-            className={`flex h-6 w-6 items-center justify-center rounded font-mono text-xs font-bold ${
-              fired ? 'brand-gradient text-white' : 'bg-white/10 text-white/40'
-            }`}
-          >
-            {meta.glyph}
-          </span>
-          <span className={`text-sm font-medium ${fired ? 'text-white/90' : 'text-white/40'}`}>
-            {meta.name}
-          </span>
-          <span className="ml-auto font-mono text-xs tabular-nums text-white/45">
-            {signal.severityPercent}%
-          </span>
-        </div>
-        <p className="mt-1 text-[11px] leading-snug text-white/35">{meta.lens}</p>
-        {fired && signal.tags.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {signal.tags.map((t) => (
-              <span
-                key={t}
-                className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-white/50"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SemanticCard({
-  semantic,
-  level,
+/**
+ * One reader's position on the scale. `above` puts the label over the bar and
+ * `!above` under it, so two markers landing on nearly the same score cannot
+ * overprint each other — which is precisely the case worth reading clearly.
+ */
+function Marker({
+  percent,
+  color,
+  label,
+  solid,
+  above,
 }: {
-  semantic: NonNullable<CompositeVerdict['semantic']>;
-  level?: FleetLevel;
+  percent: number;
+  color: string;
+  label: string;
+  solid: boolean;
+  above: boolean;
 }) {
-  const active = semantic.available;
+  const stem = solid
+    ? { background: color }
+    : { backgroundImage: `repeating-linear-gradient(to bottom, ${color} 0 3px, transparent 3px 6px)` };
   return (
-    <div
-      className={`overflow-hidden rounded-lg border transition ${
-        active
-          ? 'border-violet-400/40 bg-violet-500/[0.06] shadow-[0_0_16px_rgba(217,70,239,0.12)]'
-          : 'border-dashed border-white/15 bg-white/[0.01]'
+    <span
+      className={`absolute flex -translate-x-1/2 flex-col items-center ${
+        above ? '-top-6' : 'top-full'
       }`}
+      style={{ left: `${percent}%` }}
     >
-      <div className={`h-0.5 w-full ${active && level ? LEVEL_BAR[level] : 'bg-white/10'}`} />
-      <div className="p-3">
-        <div className="flex items-center gap-2">
-          <span
-            className={`flex h-6 w-6 items-center justify-center rounded font-mono text-xs font-bold ${
-              active ? 'brand-gradient text-white' : 'bg-white/10 text-white/40'
-            }`}
-          >
-            {SEMANTIC_META.glyph}
-          </span>
-          <span className={`text-sm font-medium ${active ? 'text-white/90' : 'text-white/40'}`}>
-            {SEMANTIC_META.name}
-          </span>
-          <span className="ml-auto font-mono text-xs tabular-nums text-white/45">
-            {active ? `${semantic.severityPercent}%` : 'silent'}
-          </span>
-        </div>
-        <p className="mt-1 text-[11px] leading-snug text-white/35">{SEMANTIC_META.lens}</p>
-        {active ? (
-          <div className="mt-2 flex flex-wrap items-center gap-1">
-            {level && (
-              <span className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-white/50">
-                {level}
-              </span>
-            )}
-            {semantic.tactic && (
-              <span className="rounded bg-white/5 px-1.5 py-0.5 text-[10px] text-white/50">
-                {semantic.tactic}
-              </span>
-            )}
-          </div>
-        ) : (
-          <p className="mt-2 text-[10px] text-white/30">Model did not vote — core stands alone.</p>
-        )}
-      </div>
-    </div>
+      {above && (
+        <span
+          className="whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.14em]"
+          style={{ color }}
+        >
+          {label} {percent}%
+        </span>
+      )}
+      <span className={above ? 'mt-0.5 h-[38px] w-0.5' : 'h-3 w-0.5'} style={stem} />
+      {!above && (
+        <span
+          className="mt-0.5 whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.14em]"
+          style={{ color }}
+        >
+          {label} {percent}%
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -306,30 +278,28 @@ function SealChain({ verdict }: { verdict: CompositeVerdict }) {
     { label: 'composite', hash: verdict.seal },
   ];
   return (
-    <div className="rounded-lg border border-violet-500/20 bg-black/30 p-4 [animation:seal-pulse_3.5s_ease-in-out_infinite]">
-      <ol className="space-y-3">
+    <div className="rounded-sm border border-ink-line bg-ink p-4">
+      <ol className="m-0 list-none space-y-3 p-0">
         {links.map((l) => (
-          <li key={l.label} className="relative border-l-2 border-violet-400/40 pl-4">
-            <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full brand-gradient" />
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">{l.label}</p>
-            <p className="break-all font-mono text-[11px] text-white/55">{l.hash}</p>
+          <li key={l.label} className="relative border-l pl-4" style={{ borderColor: 'var(--v-clean)' }}>
+            <span
+              className="absolute -left-[3px] top-1.5 h-1.5 w-1.5 rounded-full"
+              style={{ background: 'var(--v-clean)' }}
+            />
+            <p className="label">{l.label}</p>
+            <p className="mt-0.5 break-all font-mono text-[11px] leading-relaxed text-text-dim">
+              {l.hash}
+            </p>
           </li>
         ))}
       </ol>
-      <p className="mt-3 border-t border-white/8 pt-3 text-xs text-white/40">
-        The deterministic verdict was sealed <span className="brand-text font-semibold">before</span> the
-        model was called. Swap or silence the model and the wording and best-effort score change — never the
-        sealed core.
+      <p className="mt-3.5 border-t border-ink-line pt-3.5 text-xs leading-relaxed text-text-faint">
+        The deterministic verdict was sealed <span className="font-semibold text-text">before</span>{' '}
+        the model was called. Swap or silence the model and the wording and the best-effort score
+        change — never the sealed core.
       </p>
     </div>
   );
 }
 
-function SectionLabel({ n, children }: { n: string; children: React.ReactNode }) {
-  return (
-    <h3 className="mb-2.5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">
-      <span className="font-mono text-white/25">{n}</span>
-      {children}
-    </h3>
-  );
-}
+export { levelFromPercent };

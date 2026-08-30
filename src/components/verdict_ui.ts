@@ -20,6 +20,30 @@ export interface LevelStyle {
   gloss: string;
 }
 
+/**
+ * One lens, one hue — the palette the annotations are drawn in.
+ *
+ * `onPaper` is used for the mark laid under the counterparty's words (a light
+ * surface); `lit` is the same hue raised to carry on the ink ground. Defined
+ * here, beside the other presentation metadata, so a colour is never invented
+ * at a call site and the margin list and the marks can never disagree.
+ */
+export const LENS_COLOR: Record<FrameworkName | 'gemini', { onPaper: string; lit: string }> = {
+  grice: { onPaper: 'var(--lens-grice)', lit: 'var(--lens-grice-lit)' },
+  cialdini: { onPaper: 'var(--lens-cialdini)', lit: 'var(--lens-cialdini-lit)' },
+  aristotle: { onPaper: 'var(--lens-aristotle)', lit: 'var(--lens-aristotle-lit)' },
+  berne: { onPaper: 'var(--lens-berne)', lit: 'var(--lens-berne-lit)' },
+  gemini: { onPaper: 'var(--lens-gemini)', lit: 'var(--lens-gemini-lit)' },
+};
+
+/** Verdict hue, one warming ramp from quiet to alarmed. */
+export const LEVEL_COLOR: Record<FleetLevel, string> = {
+  CLEAN: 'var(--v-clean)',
+  MIXED: 'var(--v-mixed)',
+  PERSUASIVE: 'var(--v-persuasive)',
+  MANIPULATIVE: 'var(--v-manipulative)',
+};
+
 export const LEVEL_STYLE: Record<FleetLevel, LevelStyle> = {
   CLEAN: {
     badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40',

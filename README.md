@@ -269,6 +269,7 @@ src/
     architecture/page.tsx    "how it works"
     layout.tsx               nav / footer shell
   components/
+    AnnotatedMessage.tsx     the message, with each lens's spans marked in place
     ReadCard.tsx             the model's reading, with the uncertainty layer
     FleetPanel.tsx           per-lens severities, core-vs-model divergence, seal strip
     SealVerifier.tsx         recomputes the SHA-256 in the reader's own browser

@@ -28,7 +28,7 @@ export function ReadCard({ read, mode }: { read: ReadOutput; mode: 'live' | 'moc
   const [showAlternatives, setShowAlternatives] = useState(false);
 
   return (
-    <section className="rounded-lg border border-white/10 bg-white/[0.03] p-6">
+    <section className="rounded-sm border border-ink-line bg-white/[0.03] p-6">
       {mode === 'mock' && (
         <p className="mb-4 rounded border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-xs uppercase tracking-widest text-sky-300">
           Fixture response — GAMBIT_MOCK is enabled. No model was called.
@@ -47,14 +47,14 @@ export function ReadCard({ read, mode }: { read: ReadOutput; mode: 'live' | 'moc
         </span>
       </div>
 
-      <p className="mt-1 text-xs text-white/40">{CONFIDENCE_HINT[read.confidence]}</p>
+      <p className="mt-1 text-xs text-text-faint">{CONFIDENCE_HINT[read.confidence]}</p>
 
       <Block label="Evidence">
         <ul className="space-y-2">
           {read.evidence.map((quote, i) => (
             <li
               key={i}
-              className="border-l-2 border-white/20 pl-3 text-sm italic text-white/70"
+              className="border-l-2 border-white/20 pl-3 text-sm italic text-text-dim"
             >
               “{quote}”
             </li>
@@ -63,7 +63,7 @@ export function ReadCard({ read, mode }: { read: ReadOutput; mode: 'live' | 'moc
       </Block>
 
       <Block label="Subtext">
-        <p className="text-sm leading-relaxed text-white/80">{read.subtext}</p>
+        <p className="text-sm leading-relaxed text-text">{read.subtext}</p>
       </Block>
 
       <Block label="Leverage">
@@ -77,7 +77,7 @@ export function ReadCard({ read, mode }: { read: ReadOutput; mode: 'live' | 'moc
       <button
         type="button"
         onClick={() => setShowAlternatives((v) => !v)}
-        className="mt-6 text-sm text-white/50 underline underline-offset-4 transition hover:text-white/80"
+        className="mt-6 text-sm text-text-dim underline underline-offset-4 transition hover:text-text"
         aria-expanded={showAlternatives}
       >
         {showAlternatives ? 'Hide competing readings' : `Why this and not something else? (${read.alternatives.length})`}
@@ -86,9 +86,9 @@ export function ReadCard({ read, mode }: { read: ReadOutput; mode: 'live' | 'moc
       {showAlternatives && (
         <ul className="mt-3 space-y-3">
           {read.alternatives.map((alt, i) => (
-            <li key={i} className="rounded border border-white/10 bg-black/20 p-3">
-              <p className="text-sm font-medium text-white/90">{alt.tactic}</p>
-              <p className="mt-1 text-sm text-white/60">{alt.why}</p>
+            <li key={i} className="rounded border border-ink-line bg-ink p-3">
+              <p className="text-sm font-medium text-text">{alt.tactic}</p>
+              <p className="mt-1 text-sm text-text-dim">{alt.why}</p>
             </li>
           ))}
         </ul>
@@ -100,7 +100,7 @@ export function ReadCard({ read, mode }: { read: ReadOutput; mode: 'live' | 'moc
 function Block({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mt-6">
-      <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/35">
+      <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-text-faint">
         {label}
       </h3>
       {children}
@@ -111,7 +111,7 @@ function Block({ label, children }: { label: string; children: React.ReactNode }
 function Field({ term, desc, accent }: { term: string; desc: string; accent?: boolean }) {
   return (
     <div>
-      <dt className={`text-xs ${accent ? 'text-rose-300/80' : 'text-white/40'}`}>{term}</dt>
+      <dt className={`text-xs ${accent ? 'text-rose-300/80' : 'text-text-faint'}`}>{term}</dt>
       <dd className="mt-1 text-sm leading-relaxed text-white/75">{desc}</dd>
     </div>
   );

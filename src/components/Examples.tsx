@@ -45,7 +45,7 @@ export const EXAMPLES: Example[] = [
 export function Examples({ onPick, disabled }: { onPick: (message: string) => void; disabled?: boolean }) {
   return (
     <div>
-      <p className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.16em] text-white/35">
+      <p className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.16em] text-text-faint">
         Try an example
       </p>
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
@@ -55,15 +55,15 @@ export function Examples({ onPick, disabled }: { onPick: (message: string) => vo
             type="button"
             disabled={disabled}
             onClick={() => onPick(ex.message)}
-            className="group rounded-lg border border-white/10 bg-white/[0.02] p-3 text-left transition hover:border-violet-400/40 hover:bg-violet-500/[0.05] disabled:cursor-not-allowed disabled:opacity-40"
+            className="group rounded-sm border border-ink-line bg-ink-raised p-3 text-left transition hover:border-violet-400/40 hover:bg-violet-500/[0.05] disabled:cursor-not-allowed disabled:opacity-40"
           >
             <div className="flex items-center justify-between gap-2">
               <span className="text-sm font-medium text-white/85">{ex.label}</span>
-              <span className="font-mono text-[10px] text-white/25 transition group-hover:text-violet-300">
+              <span className="font-mono text-[10px] text-text-faint transition group-hover:text-violet-300">
                 run →
               </span>
             </div>
-            <p className="mt-0.5 text-xs text-white/40">{ex.hint}</p>
+            <p className="mt-0.5 text-xs text-text-faint">{ex.hint}</p>
           </button>
         ))}
       </div>
