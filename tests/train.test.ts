@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SCENARIOS, scenarioById } from '../src/lib/scenarios';
 import { trainRequestSchema } from '../src/lib/schemas/train_schema';
-import { applyMove, initialState, stateHeadConsistent, verifyChain } from '../src/lib/state_rules';
+import { applyMove, classifyUserMove, initialState, stateHeadConsistent, verifyChain } from '../src/lib/state_rules';
 
 /**
  * TRAIN's replies are generative, but its spine is deterministic: the state
@@ -70,6 +70,22 @@ describe('a multi-turn session keeps its seal chain intact', () => {
     expect(verifyChain(tampered)).toBe(-1); // history intact...
     expect(stateHeadConsistent(tampered, scenario.initialState)).toBe(false); // ...but caught here
     expect(stateHeadConsistent(nextState, scenario.initialState)).toBe(true);
+  });
+});
+
+describe('the classifier reacts to natural phrasing, not only textbook lines', () => {
+  // Regression guard for the widened CONCESSION / ALTERNATIVE lexicons: these
+  // real-sounding moves used to fall through to DEFAULT_AMBIGUOUS and leave the
+  // practice state unmoved.
+  const cases: Array<[string, string]> = [
+    ['I have another written offer at 95k, so I can only take this if we get the base to 92.', 'CONDITIONAL_TRADE'],
+    ['If you can meet me at 92 I will sign today and start in two weeks.', 'CONDITIONAL_TRADE'],
+    ["That does not work for me — I already have another offer on the table.", 'REJECT_ANCHOR_WITH_ALT'],
+  ];
+  it.each(cases)('classifies %j as %s (not DEFAULT_AMBIGUOUS)', (message, expected) => {
+    const c = classifyUserMove(message);
+    expect(c.moveType).toBe(expected);
+    expect(c.moveType).not.toBe('DEFAULT_AMBIGUOUS');
   });
 });
 

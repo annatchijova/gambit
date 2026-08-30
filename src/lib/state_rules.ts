@@ -12,20 +12,20 @@ import {
  * GAMBIT YourMove — deterministic state engine.
  *
  * ============================================================================
- * READ THIS FIRST: MOST OF THIS FILE IS NOT ON A SHIPPED PATH
+ * READ THIS FIRST: WHAT RUNS HERE, AND FROM WHERE
  * ============================================================================
  *
  * `normaliseMessage`, `sha256` and `canonicalJson` are used by the framework
- * fleet and therefore run on every request. Everything else here — `RULES`,
- * `classifyUserMove`, `applyMove`, `verifyChain`, `initialState` — is called
- * only by the tests, `npm run calibrate:rules` and the doc generator. Nothing
- * in `src/app/` touches them.
+ * fleet and run on every READ. The rest — `RULES`, `classifyUserMove`,
+ * `applyMove`, `verifyChain`, `stateHeadConsistent`, `initialState` — is the
+ * TRAIN engine, and as of the TRAIN feature it is now on a SHIPPED path:
+ * `POST /api/train` calls it on every turn of a practice session. (It is also
+ * exercised by the tests, `npm run calibrate:rules` and the doc generator.)
  *
- * That is deliberate, not rot. This is the engine TRAIN will run on, built
- * early because it needs no network, no key and no SDK, and finished while
- * those were still unavailable. It is stated here because the alternative is a
- * reader finding the largest file in the codebase and having no way to tell
- * whether it is load-bearing or abandoned.
+ * It needs no network, no key and no SDK by design: the state is decided and
+ * SEALED here, deterministically, and the Adversary model is only ever asked to
+ * phrase a reply consistent with a state it cannot change. That is the whole
+ * point of keeping the decision in code rather than in a prompt.
  *
  * ============================================================================
  * WHAT THIS FILE IS, AND WHAT IT IS NOT
@@ -160,9 +160,15 @@ export function normaliseMessage(raw: string): NormalisedMessage {
 // reads as a specification and every pattern has one definition to audit.
 // ---------------------------------------------------------------------------
 
-/** Language that gives ground: a number moves toward the opponent. */
+/**
+ * Language that gives ground: a number moves toward the opponent. Widened from
+ * the first draft, which only caught textbook phrasings ("I can go down to")
+ * and missed the natural ways people actually concede — "I can only take X",
+ * "I'll sign", "I'm willing to". A miss here reads a real concession as
+ * DEFAULT_AMBIGUOUS and leaves the practice state unmoved.
+ */
 const CONCESSION =
-  /\b(?:i(?:'| a)?m ok(?:ay)? with|i can (?:go|do|come) (?:down|to)|i(?:'ll| will) (?:accept|take|drop|lower|reduce|come down)|i accept|we accept|happy to accept|i can accept|fine,? (?:i(?:'ll| will)|let'?s)|let'?s (?:say|do)|meet you at|i(?:'ll| will) meet you)\b/;
+  /\b(?:i(?:'| a)?m ok(?:ay)? with|i(?:'m| am) (?:willing|prepared|happy|open) to|i can (?:only )?(?:go|do|come|take|pay|offer|accept|sign|agree)|i could (?:go|do|come|take|pay|offer|accept)|i(?:'ll| will) (?:accept|take|drop|lower|reduce|come down|offer|pay|sign|agree|commit)|i(?:'d| would) (?:accept|take|go|do|offer)|i accept|we accept|happy to accept|fine,? (?:i(?:'ll| will)|let'?s)|let'?s (?:say|do)|meet you at|i(?:'ll| will) meet you|(?:we have|you(?:'ve| have) got) a deal)\b/;
 
 /** An explicit exchange: the concession is priced. */
 const CONDITION =
@@ -172,9 +178,14 @@ const CONDITION =
 const REJECTION =
   /\b(?:that (?:doesn'?t|does not) work|that'?s (?:not|too)|i (?:can'?t|cannot|won'?t|will not)|(?:i'?m|we'?re) not (?:able|willing|going) to|no,|unfortunately|below (?:my|our)|under (?:my|our)|(?:doesn'?t|does not) (?:meet|match|reflect))\b/;
 
-/** A concrete outside option the speaker actually holds. */
+/**
+ * A concrete outside option the speaker actually holds. The `(?:\w+ )?` lets an
+ * adjective sit between "another" and the noun — "another WRITTEN offer",
+ * "another GOOD client" — which the first draft missed, dropping a real BATNA on
+ * the floor.
+ */
 const ALTERNATIVE =
-  /\b(?:another (?:offer|client|tenant|buyer|vendor|opportunity|role)|other (?:offers|options|clients|candidates)|competing offer|elsewhere|somewhere else|a second option|option b|i(?:'ve| have) (?:got|had) (?:an|another)|i already have)\b/;
+  /\b(?:another (?:\w+ )?(?:offer|client|tenant|buyer|vendor|opportunity|role|option|quote|company)|other (?:offers|options|clients|candidates|quotes|buyers)|competing (?:offer|bid|quote)|a (?:better|higher|stronger|competing) (?:offer|option|quote|bid)|elsewhere|somewhere else|a second option|option b|i(?:'ve| have) (?:got|had|received) (?:an|another|other)|i already have|other (?:interest|parties))\b/;
 
 /** Deadline or walk-away pressure. */
 const PRESSURE =
