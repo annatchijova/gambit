@@ -390,6 +390,31 @@ export function verifyChain(state: NegotiationState): number {
   return -1;
 }
 
+/**
+ * Check that a state's LIVE top-level scores match its sealed history.
+ *
+ * `verifyChain` seals the transition records, but not the current
+ * `perceivedUserLeverage` / `trust` / `patience` / `round` fields — those are
+ * supposed to equal the last record's `after` (or the scenario seed before any
+ * move). Nothing in the chain forces that, so a caller trusting a
+ * client-supplied state must check it here too, or accept a valid chain wearing
+ * tampered current numbers. Returns true when consistent.
+ */
+export function stateHeadConsistent(
+  state: NegotiationState,
+  seed: Pick<NegotiationState, 'perceivedUserLeverage' | 'trust' | 'patience'>,
+): boolean {
+  const head = state.concessionHistory.at(-1);
+  const after = head ? head.after : seed;
+  const round = head ? head.round : 0;
+  return (
+    state.round === round &&
+    state.perceivedUserLeverage === after.perceivedUserLeverage &&
+    state.trust === after.trust &&
+    state.patience === after.patience
+  );
+}
+
 /** A fresh, sealed-empty state for a scenario. */
 export function initialState(
   scenarioId: string,

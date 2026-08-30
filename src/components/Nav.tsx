@@ -31,6 +31,12 @@ export function Nav() {
 
         <div className="flex items-center gap-1 text-sm">
           <Link
+            href="/train"
+            className="rounded-md px-3 py-1.5 text-white/60 transition hover:bg-white/5 hover:text-white/90"
+          >
+            Train
+          </Link>
+          <Link
             href="/architecture"
             className="rounded-md px-3 py-1.5 text-white/60 transition hover:bg-white/5 hover:text-white/90"
           >
