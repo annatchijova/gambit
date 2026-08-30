@@ -55,7 +55,7 @@ export function Footer() {
           >
             Apache-2.0
           </a>
-          <span className="text-white/25">© 2026 Anna Tchijova</span>
+          <span className="text-white/25">© 2026 Olga Vasilieva</span>
         </div>
       </div>
     </footer>

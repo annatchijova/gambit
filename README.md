@@ -366,4 +366,4 @@ Gemini 3.5 Flash and 3.5 Flash-Lite · Vertex AI · Cloud Run · Vitest
 
 ## Licence
 
-[Apache License 2.0](LICENSE). Copyright 2026 Anna Tchijova.
+[Apache License 2.0](LICENSE). Copyright 2026 Olga Vasilieva.
