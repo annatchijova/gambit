@@ -3,24 +3,37 @@
 import { useState } from 'react';
 import { ReadCard } from '@/components/ReadCard';
 import { FleetPanel } from '@/components/FleetPanel';
+import { ThinkPanel } from '@/components/ThinkPanel';
 import { PipelineDiagram } from '@/components/PipelineDiagram';
 import { Examples } from '@/components/Examples';
 import type { ReadOutput } from '@/lib/schemas/read_schema';
+import type { ThinkOutput } from '@/lib/schemas/think_schema';
 import type { CompositeVerdict } from '@/lib/frameworks';
 
 /**
- * READ screen — now a proper landing.
+ * READ + THINK screen — the landing and the tool in one place.
  *
- * A first-time visitor gets the pitch, a diagram of what the app does, and
- * one-click examples, so the blank textarea is never the first thing they have
- * to interpret. The tool itself sits directly below, and the result replaces
- * the diagram once they run a read.
+ * A first-time visitor gets the pitch, a diagram, and one-click examples. After
+ * a read, THINK becomes available: three drafts, on demand, that GAMBIT will
+ * never send. The order mirrors the product — understand the board first, then
+ * consider a move.
  */
+
+interface RequestBody {
+  message: string;
+  context: { relationship: 'unknown'; hasAlternative: boolean; underTimePressure: boolean; note: string };
+}
 
 interface ReadResponse {
   mode: 'live' | 'mock';
   read: ReadOutput;
   verdict: CompositeVerdict;
+  meta: { elapsedMs: number; attempts: number };
+}
+
+interface ThinkResponse {
+  mode: 'live' | 'mock';
+  think: ThinkOutput;
   meta: { elapsedMs: number; attempts: number };
 }
 
@@ -30,33 +43,68 @@ type Status =
   | { phase: 'done'; data: ReadResponse }
   | { phase: 'failed'; message: string };
 
+type ThinkStatus =
+  | { phase: 'idle' }
+  | { phase: 'thinking' }
+  | { phase: 'done'; data: ThinkResponse }
+  | { phase: 'failed'; message: string };
+
 export default function Home() {
   const [message, setMessage] = useState('');
   const [hasAlternative, setHasAlternative] = useState(false);
   const [status, setStatus] = useState<Status>({ phase: 'idle' });
+  const [think, setThink] = useState<ThinkStatus>({ phase: 'idle' });
+  const [lastReq, setLastReq] = useState<RequestBody | null>(null);
 
   async function runRead(override?: string) {
     const msg = (override ?? message).trim();
     if (msg.length === 0) return;
     if (override !== undefined) setMessage(override);
+    const body: RequestBody = {
+      message: msg,
+      context: { relationship: 'unknown', hasAlternative, underTimePressure: false, note: '' },
+    };
+    setLastReq(body);
+    setThink({ phase: 'idle' });
     setStatus({ phase: 'reading' });
     try {
       const res = await fetch('/api/read', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          message: msg,
-          context: { relationship: 'unknown', hasAlternative, underTimePressure: false, note: '' },
-        }),
+        body: JSON.stringify(body),
       });
-      const body = await res.json();
+      const parsed = await res.json();
       if (!res.ok) {
-        setStatus({ phase: 'failed', message: body?.error?.message ?? 'The request failed.' });
+        setStatus({ phase: 'failed', message: parsed?.error?.message ?? 'The request failed.' });
         return;
       }
-      setStatus({ phase: 'done', data: body as ReadResponse });
+      setStatus({ phase: 'done', data: parsed as ReadResponse });
     } catch {
       setStatus({ phase: 'failed', message: 'Could not reach the server.' });
+    }
+  }
+
+  async function runThink(read: ReadResponse) {
+    if (!lastReq) return;
+    setThink({ phase: 'thinking' });
+    try {
+      const res = await fetch('/api/think', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          ...lastReq,
+          readTactic: read.read.likelyTactic,
+          readLevel: read.verdict.level,
+        }),
+      });
+      const parsed = await res.json();
+      if (!res.ok) {
+        setThink({ phase: 'failed', message: parsed?.error?.message ?? 'The request failed.' });
+        return;
+      }
+      setThink({ phase: 'done', data: parsed as ThinkResponse });
+    } catch {
+      setThink({ phase: 'failed', message: 'Could not reach the server.' });
     }
   }
 
@@ -75,9 +123,7 @@ export default function Home() {
           tells you how sure it is, and then stops. It does not write your reply, and it does not decide
           anything for you.
         </p>
-        <p className="mt-2 font-mono text-xs text-white/35">
-          AI increases agency. It does not replace it.
-        </p>
+        <p className="mt-2 font-mono text-xs text-white/35">AI increases agency. It does not replace it.</p>
       </header>
 
       {status.phase === 'idle' && <PipelineDiagram />}
@@ -128,8 +174,8 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <span className="h-2 w-2 animate-pulse rounded-full brand-gradient" />
             <p className="text-sm text-white/70">
-              The deterministic fleet has already sealed its verdict. Waiting on Gemini’s vote —
-              a live model call takes about ten seconds.
+              The deterministic fleet has already sealed its verdict. Waiting on Gemini’s vote — a live
+              model call takes about ten seconds.
             </p>
           </div>
         </div>
@@ -150,6 +196,41 @@ export default function Home() {
             {status.data.meta.attempts === 1 ? '' : 's'}
             {status.data.mode === 'mock' ? ' · fixture' : ' · live Gemini'}
           </p>
+
+          {/* THINK — offered after the read, never before. ----------------- */}
+          {think.phase === 'idle' && (
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => runThink(status.data)}
+                className="rounded-md border border-violet-400/40 bg-violet-500/10 px-5 py-2 text-sm font-medium text-violet-200 transition hover:bg-violet-500/20"
+              >
+                Draft my reply →
+              </button>
+              <span className="text-xs text-white/35">
+                Three postures, in your voice. GAMBIT drafts; it never sends.
+              </span>
+            </div>
+          )}
+
+          {think.phase === 'thinking' && (
+            <div className="dot-grid rounded-xl border border-white/10 bg-white/[0.02] p-6">
+              <div className="flex items-center gap-3">
+                <span className="h-2 w-2 animate-pulse rounded-full brand-gradient" />
+                <p className="text-sm text-white/70">
+                  Drafting three replies against the sealed read — about ten seconds.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {think.phase === 'failed' && (
+            <p className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
+              {think.message}
+            </p>
+          )}
+
+          {think.phase === 'done' && <ThinkPanel think={think.data.think} mode={think.data.mode} />}
         </>
       )}
     </main>
