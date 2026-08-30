@@ -60,6 +60,7 @@ export default function Home() {
   const [hasAlternative, setHasAlternative] = useState(false);
   const [status, setStatus] = useState<Status>({ phase: 'idle' });
   const [think, setThink] = useState<ThinkStatus>({ phase: 'idle' });
+  const [brief, setBrief] = useState<string>('');
   const [lastReq, setLastReq] = useState<RequestBody | null>(null);
 
   async function runRead(override?: string) {
@@ -100,6 +101,7 @@ export default function Home() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           ...lastReq,
+          brief,
           readTactic: read.read.likelyTactic,
           readLevel: read.verdict.level,
         }),
@@ -217,17 +219,33 @@ export default function Home() {
 
           {/* THINK — offered after the read, never before. ----------------- */}
           {think.phase === 'idle' && (
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => runThink(status.data)}
-                className="rounded-sm border border-ink-line px-5 py-2 text-sm font-medium text-text-dim transition hover:border-text-faint hover:text-text"
-              >
-                Draft my reply →
-              </button>
-              <span className="text-xs text-text-faint">
-                Three postures, in your voice. GAMBIT drafts; it never sends.
-              </span>
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="brief" className="label">
+                  Brief <span className="text-text-faint">(optional)</span>
+                </label>
+                <textarea
+                  id="brief"
+                  value={brief}
+                  onChange={(e) => setBrief(e.target.value)}
+                  rows={2}
+                  maxLength={600}
+                  placeholder="Optional: anything this reply must include or avoid (a number, a line you won't cross)…"
+                  className="w-full resize-y rounded-sm border border-ink-line bg-ink p-3 text-[13px] leading-relaxed text-text outline-none transition placeholder:text-text-faint focus:border-[color:var(--lens-aristotle-lit)]"
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => runThink(status.data)}
+                  className="rounded-sm border border-ink-line px-5 py-2 text-sm font-medium text-text-dim transition hover:border-text-faint hover:text-text"
+                >
+                  Draft my reply →
+                </button>
+                <span className="text-xs text-text-faint">
+                  Three postures, in your voice. GAMBIT drafts; it never sends.
+                </span>
+              </div>
             </div>
           )}
 

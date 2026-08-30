@@ -46,4 +46,24 @@ describe('THINK contracts', () => {
     ).toBe(true);
     expect(thinkRequestSchema.safeParse({ message: '' }).success).toBe(false);
   });
+
+  it('defaults the brief to an empty string when omitted, and accepts one when given', () => {
+    const omitted = thinkRequestSchema.safeParse({ message: 'hi' });
+    expect(omitted.success).toBe(true);
+    if (omitted.success) expect(omitted.data.brief).toBe('');
+
+    const provided = thinkRequestSchema.safeParse({
+      message: 'hi',
+      brief: "Offer 5k, but never agree to their deadline.",
+    });
+    expect(provided.success).toBe(true);
+    if (provided.success) expect(provided.data.brief).toBe("Offer 5k, but never agree to their deadline.");
+  });
+
+  it('gives every fixture option a non-empty label of at most 80 characters', () => {
+    for (const option of THINK_FIXTURE.options) {
+      expect(option.label.length).toBeGreaterThan(0);
+      expect(option.label.length).toBeLessThanOrEqual(80);
+    }
+  });
 });

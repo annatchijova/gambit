@@ -76,14 +76,20 @@ function OptionCard({ option }: { option: ThinkOutput['options'][number] }) {
       className="flex flex-col rounded-sm border bg-ink"
       style={{ borderColor: 'color-mix(in srgb, ' + meta.hue + ' 32%, transparent)' }}
     >
-      <div className="flex items-center justify-between border-b border-ink-line px-3 py-2">
-        <span className="font-mono text-xs font-bold uppercase tracking-wide" style={{ color: meta.hue }}>
-          {meta.label}
-        </span>
+      <div className="flex items-start justify-between gap-2 border-b border-ink-line px-3 py-2">
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-semibold leading-tight text-text">{option.label}</span>
+          <span
+            className="font-mono text-[10px] font-bold uppercase tracking-wide"
+            style={{ color: meta.hue }}
+          >
+            {meta.label}
+          </span>
+        </div>
         <button
           type="button"
           onClick={copy}
-          className="font-mono text-[10px] text-text-faint transition hover:text-text"
+          className="shrink-0 font-mono text-[10px] text-text-faint transition hover:text-text"
         >
           {copied ? 'copied ✓' : 'copy'}
         </button>

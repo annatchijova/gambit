@@ -40,7 +40,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (!parsed.success) {
     return badRequest('The request did not match the expected shape.', fieldErrors(parsed.error));
   }
-  const { message, context, readTactic, readLevel } = parsed.data;
+  const { message, context, brief, readTactic, readLevel } = parsed.data;
 
   if (isMockMode()) {
     const elapsedMs = Math.round(performance.now() - startedAt);
@@ -57,7 +57,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   let agent: ReturnType<typeof createThinkAgent>;
   try {
-    agent = createThinkAgent(readSummary, context);
+    agent = createThinkAgent(readSummary, context, brief);
   } catch (err) {
     if (err instanceof EnvError) {
       record({ route: 'think', ms: 0, ok: false, attempts: 0, failure: 'config' });

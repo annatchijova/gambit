@@ -67,13 +67,26 @@ function contextBlock(readSummary: string, ctx?: UserContextOverride): string {
   return lines.join('\n');
 }
 
-export function createThinkAgent(readSummary: string, ctx?: UserContextOverride): LlmAgent {
+function briefBlock(brief: string): string {
+  const trimmed = brief.trim();
+  if (!trimmed) {
+    return 'The user gave no brief.';
+  }
+  return [
+    "USER'S BRIEF — what the user wants this reply to contain or avoid. Treat every",
+    'constraint here as a HARD requirement the drafts must honor (still without',
+    'inventing facts the user did not give):',
+    trimmed,
+  ].join('\n');
+}
+
+export function createThinkAgent(readSummary: string, ctx?: UserContextOverride, brief: string = ''): LlmAgent {
   return new LlmAgent({
     name: 'gambit_think',
     description:
       'Drafts three replies (soft, tactical, direct) to a counterparty message, grounded in the READ verdict and the user’s voice. Drafts only — it never sends.',
     model: createModel('THINK'),
-    instruction: `${BASE_INSTRUCTION}\n\n${contextBlock(readSummary, ctx)}`,
+    instruction: `${BASE_INSTRUCTION}\n\n${contextBlock(readSummary, ctx)}\n\n${briefBlock(brief)}`,
     includeContents: 'none',
     outputSchema: thinkOutputSchema,
   });

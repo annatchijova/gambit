@@ -13,6 +13,12 @@ import { userContextOverrideSchema } from './read_schema';
 export const thinkRequestSchema = z.object({
   message: z.string().trim().min(1).max(4000),
   context: userContextOverrideSchema.optional(),
+  /**
+   * Anything the user wants the reply to contain or avoid — a number they will
+   * accept, a line they will not cross, a fact they are willing to state. Never
+   * inferred; only what they typed.
+   */
+  brief: z.string().trim().max(600).default(''),
   readTactic: z.string().max(120).optional(),
   readLevel: z.string().max(40).optional(),
 });
@@ -40,6 +46,13 @@ export const thinkOptionSchema = z.object({
     .enum(STANCES)
     .describe(
       'The posture of this draft. "soft" preserves the relationship and buys time; "tactical" trades or tests without committing; "direct" states the boundary plainly. Provide exactly one of each.',
+    ),
+  label: z
+    .string()
+    .min(1)
+    .max(80)
+    .describe(
+      'A short, plain name for this move in the user\'s own terms — a few words, not a sentence. E.g. "Buy time, stay warm" or "Refuse the countdown". Not a restatement of the stance.',
     ),
   draft: z
     .string()

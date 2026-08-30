@@ -14,6 +14,7 @@ export const THINK_FIXTURE: ThinkOutput = {
   options: [
     {
       stance: 'soft',
+      label: 'Buy time, stay warm',
       draft:
         "Thanks for the offer. I want to give this the consideration it deserves, so I'll come back to you with a proper answer — I just need a little time to look at it properly.",
       concedes: 'Signals real interest, which tells them you are unlikely to walk away.',
@@ -22,6 +23,7 @@ export const THINK_FIXTURE: ThinkOutput = {
     },
     {
       stance: 'tactical',
+      label: 'Counter the deadline',
       draft:
         "I'm interested, but the timeline you've set doesn't work for me. If the terms are as strong as you say, they'll hold until the end of the week — can we agree on that?",
       concedes: 'Commits you to acting by the end of the week if they agree.',
@@ -30,6 +32,7 @@ export const THINK_FIXTURE: ThinkOutput = {
     },
     {
       stance: 'direct',
+      label: 'Refuse the countdown',
       draft:
         "I don't make decisions this size under a countdown. I'm happy to keep talking on the merits, but the deadline isn't a factor for me.",
       concedes: 'Some warmth — it reads firm, and can cost you if the relationship is fragile.',
