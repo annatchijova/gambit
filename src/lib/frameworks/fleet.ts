@@ -1,11 +1,13 @@
 import { Fraction, sumFractions } from '../fraction';
-import { canonicalJson, sha256 } from '../state_rules';
+import { sha256 } from '../state_rules';
 import { normaliseMessage } from '../state_rules';
 import type { FrameworkAnalyzer, FrameworkName, FrameworkSignal } from './types';
 import { analyzeGrice } from './grice';
 import { analyzeCialdini } from './cialdini';
 import { analyzeAristotle } from './aristotle';
 import { analyzeBerne } from './berne';
+import { assessScope, type Coverage } from './scope';
+import { fleetSealInput } from './seal_payload';
 
 /**
  * GAMBIT YourMove — the framework fleet.
@@ -98,6 +100,18 @@ export interface FleetVerdict {
   gatePassed: boolean;
   /** Every lens's full reading, for the audit panel. Severities as strings. */
   signals: SealedSignal[];
+  /**
+   * Whether the English lenses could read this message at all.
+   *
+   * DERIVED AND NOT SEALED, for the same reason `confidence` and
+   * `scorePercent` are not: the seal covers what the lenses FOUND, and this
+   * says whether they could look. It is a deterministic function of the raw
+   * message (see scope.ts), so it is reproducible without being part of the
+   * sealed payload — and a verdict's integrity does not depend on it.
+   */
+  coverage: Coverage;
+  /** Why, in words the interface can show the user verbatim. */
+  scopeReason: string;
   /** SHA-256 over the canonical verdict payload, computed before any LLM call. */
   seal: string;
 }
@@ -201,26 +215,31 @@ export function runFleet(raw: string): FleetVerdict {
   else if (active.length >= 3) confidence = 'High';
   else confidence = 'Low';
 
+  // Scope guard. A silent fleet is only good news if the lenses could read the
+  // message in the first place; on a message they cannot, a High-confidence
+  // CLEAN is a confident all-clear on something never actually read. Downgrade
+  // it and carry the reason, so the interface can say "no verdict" instead of
+  // "clean". See scope.ts.
+  const scope = assessScope(raw, active.length);
+  if (scope.coverage === 'out_of_scope') confidence = 'Low';
+
   const sealed = signals.map(toSealed);
 
-  // The sealed payload. Everything the verdict rests on, canonicalised and
-  // hashed. Note the score travels as an exact "n/d" string, never a float.
-  const payload = {
-    version: FLEET_SEAL_VERSION,
-    schemaVersion: FLEET_SCHEMA_VERSION,
-    level,
-    score: score.toString(),
-    corroboration: active.length,
-    gatePassed,
-    signals: sealed.map((s) => ({
-      framework: s.framework,
-      severity: s.severity,
-      tags: s.tags,
-      evidence: s.evidence,
-    })),
-    crashed: [...crashedFrameworks].sort(),
-  };
-  const seal = sha256(canonicalJson(payload));
+  // Everything the verdict rests on, canonicalised and hashed. The payload is
+  // defined once, in seal_payload.ts, and shared with the verifier below and
+  // with the browser-side verifier — so the three can never drift apart.
+  const seal = sha256(
+    fleetSealInput({
+      sealVersion: FLEET_SEAL_VERSION,
+      schemaVersion: FLEET_SCHEMA_VERSION,
+      level,
+      score: score.toString(),
+      corroboration: active.length,
+      gatePassed,
+      signals: sealed,
+      crashedFrameworks,
+    }),
+  );
 
   return {
     schemaVersion: FLEET_SCHEMA_VERSION,
@@ -235,6 +254,8 @@ export function runFleet(raw: string): FleetVerdict {
     corroboration: active.length,
     gatePassed,
     signals: sealed,
+    coverage: scope.coverage,
+    scopeReason: scope.reason,
     seal,
   };
 }
@@ -247,20 +268,5 @@ export function runFleet(raw: string): FleetVerdict {
  * narrator LLM has run.
  */
 export function verifyFleetSeal(v: FleetVerdict): boolean {
-  const payload = {
-    version: v.sealVersion,
-    schemaVersion: v.schemaVersion,
-    level: v.level,
-    score: v.score,
-    corroboration: v.corroboration,
-    gatePassed: v.gatePassed,
-    signals: v.signals.map((s) => ({
-      framework: s.framework,
-      severity: s.severity,
-      tags: s.tags,
-      evidence: s.evidence,
-    })),
-    crashed: [...v.crashedFrameworks].sort(),
-  };
-  return sha256(canonicalJson(payload)) === v.seal;
+  return sha256(fleetSealInput(v)) === v.seal;
 }

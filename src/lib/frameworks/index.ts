@@ -19,6 +19,7 @@ export {
   type SealedSignal,
 } from './fleet';
 export { FRAMEWORK_NAMES, type FrameworkName, type FrameworkSignal } from './types';
+export { assessScope, type Coverage, type ScopeAssessment } from './scope';
 export {
   severityFromGrid,
   semanticVote,

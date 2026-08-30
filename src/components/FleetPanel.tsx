@@ -1,4 +1,5 @@
 import type { CompositeVerdict, FleetLevel, SealedSignal } from '@/lib/frameworks';
+import { SealVerifier } from './SealVerifier';
 import {
   FRAMEWORK_META,
   LEVEL_BAR,
@@ -24,25 +25,48 @@ export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
   const { core, semantic, divergence } = verdict;
   const s = LEVEL_STYLE[verdict.level];
   const bestEffort = verdict.determinismLevel === 'best_effort_with_semantic';
+  // The lenses are English patterns. When they could not read the message at
+  // all, "CLEAN" would be a confident all-clear on something never read — so
+  // the hero says so instead of showing a reassuring zero. See lib/frameworks/scope.ts.
+  const outOfScope = core.coverage === 'out_of_scope';
 
   return (
     <section className="dot-grid overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
+      {outOfScope && (
+        <div className="border-b border-amber-500/40 bg-amber-500/10 px-6 py-3">
+          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-amber-300">
+            Outside the rule engine&rsquo;s scope
+          </p>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-amber-100/90">
+            {core.scopeReason}
+          </p>
+        </div>
+      )}
+
       {/* Verdict hero -------------------------------------------------------- */}
       <div className={`border-b border-white/8 p-6`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
-              Sealed verdict
+              {outOfScope ? 'Model-only reading — nothing sealed by the rules' : 'Sealed verdict'}
             </p>
             <div className="mt-1 flex items-baseline gap-3">
               <span className={`font-mono text-3xl font-bold tracking-tight ${s.text}`}>
-                {verdict.level}
+                {semantic?.available ? verdict.level : 'NO VERDICT'}
               </span>
-              <span className="font-mono text-lg tabular-nums text-white/40">
-                {verdict.scorePercent}%
-              </span>
+              {(!outOfScope || semantic?.available) && (
+                <span className="font-mono text-lg tabular-nums text-white/40">
+                  {verdict.scorePercent}%
+                </span>
+              )}
             </div>
-            <p className="mt-1.5 max-w-md text-sm text-white/50">{s.gloss}</p>
+            <p className="mt-1.5 max-w-md text-sm text-white/50">
+              {outOfScope
+                ? semantic?.available
+                  ? 'Gemini read this message; the rule engine could not. Nothing here is corroborated by a deterministic lens, so it rests on one unverifiable opinion.'
+                  : 'No rule matched, because none could read this message — and the model did not answer either. That is not the same as finding nothing wrong.'
+                : s.gloss}
+            </p>
           </div>
 
           <div className="flex flex-col items-end gap-2">
@@ -62,12 +86,16 @@ export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
                   : 'No usable model vote — this verdict is the deterministic core, replayable exactly.'
               }
             >
-              {bestEffort ? 'best-effort' : 'deterministic · replayable'}
+              {outOfScope ? 'model only · rules out of scope' : bestEffort ? 'best-effort' : 'deterministic · replayable'}
             </span>
           </div>
         </div>
 
-        <ScoreBar compositePercent={verdict.scorePercent} corePercent={core.scorePercent} />
+        {/* The core marker would read 0% here, which means "unread", not
+            "clean" — a bar cannot say that, so it is not drawn. */}
+        {!outOfScope && (
+          <ScoreBar compositePercent={verdict.scorePercent} corePercent={core.scorePercent} />
+        )}
       </div>
 
       <div className="space-y-6 p-6">
@@ -114,9 +142,11 @@ export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
         </div>
 
         {/* Chain of custody ------------------------------------------------ */}
-        <div>
+        <div className="space-y-3">
           <SectionLabel n="03">Chain of custody</SectionLabel>
           <SealChain verdict={verdict} />
+          {/* The claim above is checkable, so let the reader check it. */}
+          <SealVerifier verdict={verdict} />
         </div>
       </div>
     </section>

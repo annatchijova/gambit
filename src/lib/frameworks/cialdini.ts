@@ -27,7 +27,11 @@ const CATEGORIES: readonly Category[] = [
     tag: 'URGENCY',
     weight: Fraction.of(1, 5),
     pattern:
-      /\b(?:act (?:now|fast|today)|right (?:now|away)|immediately|time[- ]sensitive|by (?:end of (?:day|business)|cob|eod)|before (?:it'?s too late|midnight)|urgent(?:ly)?|can'?t wait)\b/,
+      // The deadline half of this category is deliberately anchored to a SHORT
+      // horizon. "valid until December" is administration; "good until
+      // midnight" is pressure. Matching every "until <date>" would convict the
+      // honest message, which costs more than missing the manipulative one.
+      /\b(?:act (?:now|fast|today)|right (?:now|away)|immediately|time[- ]sensitive|by (?:end of (?:day|business)|cob|eod)|before (?:it'?s too late|midnight)|urgent(?:ly)?|can'?t wait|(?:good|valid|available|open|on the table) (?:until|through|till) (?:midnight|tonight|today|tomorrow|noon|end of (?:day|business)|cob|eod|\d{1,2}(?::\d{2})?\s*(?:am|pm))|expires? (?:tonight|today|tomorrow|at (?:midnight|noon|\d{1,2}(?::\d{2})?\s*(?:am|pm)?)|end of (?:day|business)))\b/,
   },
   {
     tag: 'AUTHORITY',
@@ -39,13 +43,20 @@ const CATEGORIES: readonly Category[] = [
     tag: 'SOCIAL_PROOF',
     weight: Fraction.of(1, 5),
     pattern:
-      /\b(?:everyone (?:else )?(?:is|has|does)|all (?:our|my) (?:other )?(?:clients|customers|partners)|most people|others have already|nobody else (?:has a problem|complains|objects)|(?:9 out of 10|99%))\b/,
+      // The conformity push survives an intervening phrase — "everyone else ON
+      // THE TEAM has already agreed". The filler is bounded and cannot cross a
+      // sentence boundary, and the widened arm requires "already <conceded>"
+      // rather than any "everyone ... has": a team that "has reviewed the
+      // draft" is reporting status, not applying pressure.
+      /\b(?:everyone (?:else )?(?:is|has|does)|(?:everyone|everybody)(?: else)?(?:\s+[^.!?\s]+){0,4}\s+(?:has|have) already (?:agreed|accepted|signed|committed|approved|said yes)|all (?:our|my) (?:other )?(?:clients|customers|partners)|most people|others have already|nobody else (?:has a problem|complains|objects)|(?:9 out of 10|99%))\b/,
   },
   {
     tag: 'RECIPROCITY',
     weight: Fraction.of(1, 5),
     pattern:
-      /\b(?:after everything (?:i'?ve|we'?ve) done|i did you a favou?r|given (?:what|everything) (?:i|we) (?:offered|gave)|we'?ve been (?:more than |nothing but )?(?:fair|generous)|the least you could do)\b/,
+      // "after everything I have done" and "after everything I've done" are the
+      // same move. Requiring the contraction was the Day 3 miss.
+      /\b(?:after (?:everything|all) (?:i|we)(?:'?ve| have) done|i did you a favou?r|given (?:what|everything) (?:i|we) (?:offered|gave)|we'?ve been (?:more than |nothing but )?(?:fair|generous)|the least you could do)\b/,
   },
   {
     tag: 'LIKING_flattery',
