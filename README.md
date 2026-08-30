@@ -205,6 +205,67 @@ Gemini) for current facts, and read a pasted contract to flag inconsistencies
 and one-sided terms. It guides and cites; it is explicitly not legal advice and
 never sends or signs anything.
 
+## The fleet of agents
+
+Nine analysts read every negotiation, kept in two tiers on purpose.
+
+**Five are real Gemini agents** (Google ADK `LlmAgent`), one of them tool-using:
+
+| Agent | Role | Tool |
+|---|---|---|
+| `gambit_read` | Semantic analyst — reads the message and casts a manipulation vote beside the rules | — |
+| `gambit_think` | Drafter — writes three reply options (soft / tactical / direct) | — |
+| `gambit_adversary` | Counterparty — the TRAIN opponent, replies in persona | — |
+| `gambit_ask` | Explainer — answers questions about the sealed verdict | — |
+| `gambit_assistant` | Assistant — conversation, and reads a pasted contract for inconsistencies | **Google Search** |
+
+**Four are deterministic rule-agents** — the fleet lenses, with no model inside
+them: Grice (evasion), Cialdini (influence), Aristotle (pathos vs logos), Berne
+(ulterior moves). The interface calls them "rule agents" for a reason: each
+reads the message on its own and must quote a verbatim span to convict.
+
+The distinguishing move is not the count — it is that **the agents are kept out
+of the sealed decision**. The four rule-agents decide and seal; the five Gemini
+agents vote, narrate, draft and converse *around* a verdict they cannot change.
+
+```mermaid
+flowchart TB
+    msg(["One inbound message"])
+
+    subgraph FLEET["Deterministic fleet — no model, runs first"]
+        direction LR
+        G["Grice<br/>evasion"]
+        C["Cialdini<br/>influence"]
+        A["Aristotle<br/>pathos vs logos"]
+        BE["Berne<br/>ulterior moves"]
+    end
+
+    SEAL["SHA-256 sealed<br/>core verdict"]
+    READ["gambit_read · Gemini<br/>semantic vote"]
+    COMP["Composite verdict<br/>+ rule-vs-model divergence"]
+
+    msg --> FLEET --> SEAL --> COMP
+    msg --> READ --> COMP
+    COMP --> ASK["gambit_ask · Gemini<br/>explains the verdict"]
+    COMP --> THINK["gambit_think · Gemini<br/>drafts three replies"]
+
+    subgraph PRACTICE["Practice — TRAIN"]
+        ENG["state_rules engine<br/>moves + re-seals state"] --> ADV["gambit_adversary · Gemini<br/>replies in persona"]
+    end
+
+    ASSIST["gambit_assistant · Gemini + Google Search<br/>chat · reads contracts"]
+
+    classDef gem fill:#2a1a44,stroke:#a855f7,color:#f3e8ff;
+    classDef rule fill:#1c2024,stroke:#4b5563,color:#cbd5e1;
+    classDef seal fill:#2a2410,stroke:#d4a017,color:#f5e9c8;
+    class READ,ASK,THINK,ADV,ASSIST gem;
+    class G,C,A,BE rule;
+    class SEAL seal;
+```
+
+Two more roles, `COACH` and `SCORE`, are reserved in `src/lib/models.ts` but not
+built — no agent stands behind them yet, so they are not counted.
+
 ## What is not built
 
 Listed separately on purpose: nothing here exists, and nothing on screen
