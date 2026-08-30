@@ -33,6 +33,8 @@ export const MODELS = {
   THINK: 'gemini-3.5-flash',
   /** TRAIN / Adversary — opponent simulation. Critical path. */
   ADVERSARY: 'gemini-3.5-flash',
+  /** ASSISTANT — conversational copilot with web search. Critical path. */
+  CHAT: 'gemini-3.5-flash',
   /** TRAIN / Coach — async micro-feedback. Non-blocking, cheaper tier. */
   COACH: 'gemini-3.5-flash-lite',
   /** SCORE — narration of an already-computed score. Non-blocking. */
