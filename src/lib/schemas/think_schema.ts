@@ -48,16 +48,25 @@ export const thinkOptionSchema = z.object({
     .describe(
       "A reply the user could actually send, written in their voice — not a description of a reply. Do not invent facts (budgets, deadlines, alternatives) the user did not give you. Do not concede more than the counterparty's own message already put on the table. A few sentences at most.",
     ),
-  rationale: z
+  concedes: z
     .string()
-    .min(10)
-    .max(300)
-    .describe('Why this posture makes sense against the tactic the read identified. One or two sentences.'),
-  watchOut: z
+    .min(5)
+    .max(240)
+    .describe(
+      'What this reply GIVES AWAY, stated plainly — the concession it makes. Required: a draft that cannot name its own cost is not offered, because a reply that hides its concession is doing to the user exactly what this app was built to detect. One sentence.',
+    ),
+  holds: z
     .string()
-    .min(10)
-    .max(220)
-    .describe('The cost or risk of taking this posture — what it gives up or exposes. Every option has one.'),
+    .min(5)
+    .max(240)
+    .describe('What this reply holds on to — the line it does not cross. One sentence.'),
+  assumptions: z
+    .array(z.string().max(200))
+    .max(4)
+    .default([])
+    .describe(
+      'Any fact this draft states that the user did NOT give you — a number, a deadline, an alternative, a budget. The goal is an empty list. Never invent a fact to make the reply stronger; if the draft needs one, put it here so the user can confirm it is true before sending, rather than discovering a lie in their own mouth.',
+    ),
 });
 
 export const thinkOutputSchema = z.object({

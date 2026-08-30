@@ -15,25 +15,26 @@ export const THINK_FIXTURE: ThinkOutput = {
     {
       stance: 'soft',
       draft:
-        "Thanks for the offer. I want to give this the consideration it deserves, so I'll come back to you with a proper answer — I just need a little time to look at it against my other options.",
-      rationale:
-        'Keeps the relationship warm while quietly refusing the artificial urgency. Buys time without conceding anything.',
-      watchOut: 'A patient counterparty can simply repeat the deadline; you may need a firmer line next round.',
+        "Thanks for the offer. I want to give this the consideration it deserves, so I'll come back to you with a proper answer — I just need a little time to look at it properly.",
+      concedes: 'Signals real interest, which tells them you are unlikely to walk away.',
+      holds: 'Gives no ground on price, terms, or the timeline.',
+      assumptions: [],
     },
     {
       stance: 'tactical',
       draft:
         "I'm interested, but the timeline you've set doesn't work for me. If the terms are as strong as you say, they'll hold until the end of the week — can we agree on that?",
-      rationale:
-        'Tests whether the deadline is real by asking for a small, reasonable extension. A genuine offer usually survives it.',
-      watchOut: 'Naming a specific date commits you to acting by then; keep it comfortable.',
+      concedes: 'Commits you to acting by the end of the week if they agree.',
+      holds: 'Refuses the original deadline and makes them prove it was real.',
+      assumptions: [],
     },
     {
       stance: 'direct',
       draft:
         "I don't make decisions this size under a countdown. I'm happy to keep talking on the merits, but the deadline isn't a factor for me.",
-      rationale: 'States the boundary plainly and removes the pressure lever entirely.',
-      watchOut: 'Reads as confrontational; best when you genuinely hold an alternative and the relationship can take it.',
+      concedes: 'Some warmth — it reads firm, and can cost you if the relationship is fragile.',
+      holds: 'The whole pressure lever: the deadline stops working on you.',
+      assumptions: [],
     },
   ],
 };

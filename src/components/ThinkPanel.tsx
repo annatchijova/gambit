@@ -89,16 +89,34 @@ function OptionCard({ option }: { option: ThinkOutput['options'][number] }) {
         </button>
       </div>
       <div className="flex flex-1 flex-col gap-3 p-3">
+        {option.assumptions.length > 0 && (
+          <div
+            className="rounded-sm border-l-2 px-2.5 py-2"
+            style={{
+              borderColor: 'var(--lens-aristotle-lit)',
+              background: 'color-mix(in srgb, var(--lens-aristotle-lit) 8%, transparent)',
+            }}
+          >
+            <p className="label !text-[color:var(--lens-aristotle-lit)]">Confirm before sending</p>
+            <ul className="mt-1 space-y-0.5">
+              {option.assumptions.map((a, i) => (
+                <li key={i} className="text-[13px] text-text-dim">
+                  • {a}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <p className="select-all whitespace-pre-wrap rounded-sm border border-ink-line bg-ink-raised p-2.5 text-sm leading-relaxed text-text">
           {option.draft}
         </p>
         <div>
-          <p className="label">Why</p>
-          <p className="mt-0.5 text-[13px] text-text-dim">{option.rationale}</p>
+          <p className="label">Gives away</p>
+          <p className="mt-0.5 text-[13px] text-text-dim">{option.concedes}</p>
         </div>
         <div>
-          <p className="label">Watch out</p>
-          <p className="mt-0.5 text-[13px] text-text-dim">{option.watchOut}</p>
+          <p className="label">Holds</p>
+          <p className="mt-0.5 text-[13px] text-text-dim">{option.holds}</p>
         </div>
       </div>
     </div>
