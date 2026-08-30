@@ -221,31 +221,30 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => runThink(status.data)}
-                className="rounded-md border border-violet-400/40 bg-violet-500/10 px-5 py-2 text-sm font-medium text-violet-200 transition hover:bg-violet-500/20"
+                className="rounded-sm border border-ink-line px-5 py-2 text-sm font-medium text-text-dim transition hover:border-text-faint hover:text-text"
               >
                 Draft my reply →
               </button>
-              <span className="text-xs text-white/35">
+              <span className="text-xs text-text-faint">
                 Three postures, in your voice. GAMBIT drafts; it never sends.
               </span>
             </div>
           )}
 
           {think.phase === 'thinking' && (
-            <div className="dot-grid rounded-xl border border-white/10 bg-white/[0.02] p-6">
-              <div className="flex items-center gap-3">
-                <span className="h-2 w-2 animate-pulse rounded-full brand-gradient" />
-                <p className="text-sm text-white/70">
-                  Drafting three replies against the sealed read — about ten seconds.
-                </p>
-              </div>
+            <div className="ruled rounded-sm border border-ink-line bg-ink-raised p-5">
+              <p className="label">Drafting</p>
+              <p className="mt-2 text-sm leading-relaxed text-text-dim">
+                Writing three replies against the sealed read — about ten seconds on a live call.
+              </p>
             </div>
           )}
 
           {think.phase === 'failed' && (
-            <p className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
-              {think.message}
-            </p>
+            <div className="rounded-sm border-l-2 border-[color:var(--v-manipulative)] bg-[color:var(--v-manipulative)]/10 p-4">
+              <p className="label !text-[color:var(--v-manipulative)]">Drafting did not complete</p>
+              <p className="mt-1.5 text-sm text-text">{think.message}</p>
+            </div>
           )}
 
           {think.phase === 'done' && <ThinkPanel think={think.data.think} mode={think.data.mode} />}

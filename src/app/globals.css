@@ -212,108 +212,81 @@ body {
 }
 
 /**
- * Accent utilities used by the THINK / TRAIN / Assistant surfaces. Kept so those
- * screens render while they are being re-skinned onto the read view's design
- * tokens. The indigo->violet->fuchsia gradient is the one visual thread across
- * the generative surfaces.
- */
-.brand-gradient {
-  background-image: linear-gradient(135deg, #615ced 0%, #a855f7 55%, #d946ef 100%);
-}
-
-.brand-text {
-  background-image: linear-gradient(135deg, #8b87f5 0%, #c084fc 55%, #e879f9 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.dot-grid {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 22px 22px;
-}
-
-.app-glow {
-  background: radial-gradient(ellipse 60% 100% at 50% 0%, rgba(168, 85, 247, 0.1), transparent 70%);
-}
-
-/**
  * /fleet — the agent-fleet diagram, scoped under .fleetviz so its generic class
  * names (.card, .grid, .seal) never collide with Tailwind or the app tokens.
  * The palette here is intentionally self-contained and is a placeholder pending
  * a re-theme onto the app's design tokens.
  */
 .fleetviz {
-  --fbg: #0a0a0f;
-  --fpanel: #14141d;
-  --fpanel2: #1a1a26;
-  --fline: #262636;
-  --flinesoft: #1e1e2b;
-  --ftext: #ecebf5;
-  --fdim: #9a9ab2;
-  --ffaint: #5f5f78;
-  --fgold: #e0b23c;
-  --fgoldsoft: rgba(224, 178, 60, 0.12);
-  --fsteel: #7c8aa6;
-  --fsteelsoft: rgba(124, 138, 166, 0.09);
-  --fviolet: #b98cf6;
-  --fgrad: linear-gradient(135deg, #615ced 0%, #a855f7 55%, #d946ef 100%);
-  --fmono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
-  background:
-    radial-gradient(ellipse 70% 45% at 50% -5%, rgba(168, 85, 247, 0.13), transparent 70%),
-    var(--fbg);
+  /* Mapped onto the app's design tokens. Each rule card carries its lens hue in
+     --h (set per card); Gemini agents carry the model's slate; the seal is the
+     verdict gold. */
+  --fpanel: var(--ink-raised);
+  --fline: var(--ink-line);
+  --ftext: var(--text);
+  --fdim: var(--text-dim);
+  --ffaint: var(--text-faint);
+  --fgold: var(--v-mixed);
+  --fgemini: var(--lens-gemini-lit);
+  --fmono: var(--font-mono);
+  --h: var(--lens-gemini-lit);
+  background: var(--ink);
   color: var(--ftext);
   border: 1px solid var(--fline);
-  border-radius: 14px;
+  border-radius: 6px;
   padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem);
 }
 .fleetviz * { box-sizing: border-box; }
 .fleetviz .wrap { max-width: 1240px; margin: 0 auto; }
 .fleetviz .eyebrow { font-family: var(--fmono); font-size: 13px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ffaint); margin: 0; }
-.fleetviz .ttl { font-size: clamp(2.4rem, 5.5vw, 4rem); font-weight: 600; letter-spacing: -0.02em; text-wrap: balance; margin: 0.6rem 0 0; }
-.fleetviz .ttl .grad { background: var(--fgrad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.fleetviz .ttl { font-size: clamp(2.4rem, 5.5vw, 4rem); font-weight: 600; letter-spacing: -0.02em; text-wrap: balance; margin: 0.6rem 0 0; color: var(--ftext); }
+.fleetviz .ttl .grad { color: var(--ftext); }
 .fleetviz .lede { max-width: 72ch; color: var(--fdim); font-size: 1.15rem; margin: 1.1rem 0 0; }
 .fleetviz .lede strong { color: var(--ftext); font-weight: 600; }
 .fleetviz .legend { display: flex; flex-wrap: wrap; gap: 1.3rem; margin: 1.6rem 0 0; font-family: var(--fmono); font-size: 12.5px; color: var(--fdim); }
 .fleetviz .legend span { display: inline-flex; align-items: center; gap: 0.5em; }
 .fleetviz .swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid; }
-.fleetviz .sw-gem { background: var(--fgrad); border-color: transparent; }
-.fleetviz .sw-rule { background: var(--fsteelsoft); border-color: var(--fsteel); }
-.fleetviz .sw-seal { background: var(--fgoldsoft); border-color: var(--fgold); }
+.fleetviz .sw-gem { background: color-mix(in srgb, var(--fgemini) 22%, transparent); border-color: var(--fgemini); }
+.fleetviz .sw-rule { background: color-mix(in srgb, var(--lens-aristotle-lit) 14%, transparent); border-color: var(--lens-aristotle-lit); }
+.fleetviz .sw-seal { background: color-mix(in srgb, var(--fgold) 15%, transparent); border-color: var(--fgold); }
 .fleetviz .tier { margin-top: 2.6rem; }
 .fleetviz .tier-head { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.1rem; }
 .fleetviz .tier-num { font-family: var(--fmono); font-size: 13px; color: var(--ffaint); }
 .fleetviz .tier-title { font-family: var(--fmono); font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fdim); }
 .fleetviz .tier-title b { color: var(--ftext); font-weight: 700; }
 .fleetviz .msg-chip { display: inline-flex; align-items: center; gap: 0.5em; border: 1px dashed var(--fline); border-radius: 999px; padding: 0.6rem 1.3rem; font-size: 1rem; color: var(--fdim); background: var(--fpanel); }
-.fleetviz .msg-chip::before { content: "›"; color: var(--fviolet); font-family: var(--fmono); }
+.fleetviz .msg-chip::before { content: "›"; color: var(--ffaint); font-family: var(--fmono); }
 .fleetviz .flow { display: block; text-align: center; color: var(--ffaint); font-family: var(--fmono); margin: 0.8rem 0; font-size: 15px; }
 .fleetviz .grid { display: grid; gap: 1rem; grid-template-columns: repeat(4, 1fr); }
 .fleetviz .grid.five { grid-template-columns: repeat(5, 1fr); }
 @media (max-width: 820px) { .fleetviz .grid, .fleetviz .grid.five { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 480px) { .fleetviz .grid, .fleetviz .grid.five { grid-template-columns: 1fr; } }
-.fleetviz .card { position: relative; border-radius: 12px; padding: 1.25rem 1.15rem 1.45rem; background: var(--fpanel); border: 1px solid var(--fline); overflow: hidden; }
+.fleetviz .card { position: relative; border-radius: 6px; padding: 1.25rem 1.15rem 1.45rem; background: var(--fpanel); border: 1px solid var(--fline); overflow: hidden; }
 .fleetviz .card .top { height: 2px; position: absolute; inset: 0 0 auto 0; }
-.fleetviz .rule { background: var(--fsteelsoft); border-color: rgba(124, 138, 166, 0.28); }
-.fleetviz .rule .top { background: var(--fsteel); opacity: 0.5; }
-.fleetviz .rule .glyph { color: var(--fsteel); border-color: rgba(124, 138, 166, 0.4); }
-.fleetviz .gem { background: linear-gradient(180deg, rgba(120, 80, 200, 0.1), rgba(120, 80, 200, 0.03)); border-color: rgba(168, 85, 247, 0.32); }
-.fleetviz .gem .top { background: var(--fgrad); }
-.fleetviz .gem .glyph { background: var(--fgrad); color: #fff; border: 0; }
-.fleetviz .gem .id { color: #eaddff; }
+.fleetviz .rule { background: color-mix(in srgb, var(--h) 7%, transparent); border-color: color-mix(in srgb, var(--h) 26%, transparent); }
+.fleetviz .rule.grice { --h: var(--lens-grice-lit); }
+.fleetviz .rule.cialdini { --h: var(--lens-cialdini-lit); }
+.fleetviz .rule.aristotle { --h: var(--lens-aristotle-lit); }
+.fleetviz .rule.berne { --h: var(--lens-berne-lit); }
+.fleetviz .rule .top { background: var(--h); opacity: 0.65; }
+.fleetviz .rule .glyph { color: var(--h); border-color: color-mix(in srgb, var(--h) 42%, transparent); background: color-mix(in srgb, var(--h) 9%, transparent); }
+.fleetviz .gem { background: color-mix(in srgb, var(--fgemini) 8%, transparent); border-color: color-mix(in srgb, var(--fgemini) 30%, transparent); }
+.fleetviz .gem .top { background: var(--fgemini); }
+.fleetviz .gem .glyph { background: var(--fgemini); color: var(--ink); border: 0; }
+.fleetviz .gem .id { color: var(--ftext); }
 .fleetviz .glyph { width: 34px; height: 34px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--fmono); font-size: 15px; font-weight: 700; border: 1px solid; margin-bottom: 0.8rem; }
 .fleetviz .id { font-family: var(--fmono); font-size: 16px; color: var(--ftext); font-weight: 600; }
 .fleetviz .role { color: var(--fdim); font-size: 14.5px; margin-top: 0.45rem; line-height: 1.45; }
-.fleetviz .tool { display: inline-flex; align-items: center; gap: 0.4em; margin-top: 0.7rem; font-family: var(--fmono); font-size: 10px; letter-spacing: 0.04em; color: var(--fviolet); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 5px; padding: 0.15rem 0.45rem; background: rgba(168, 85, 247, 0.08); }
-.fleetviz .seal { margin: 1.4rem 0; border: 1px solid var(--fgold); background: repeating-linear-gradient(-45deg, rgba(224, 178, 60, 0.05) 0 8px, transparent 8px 16px), var(--fgoldsoft); border-radius: 10px; padding: 1rem 1.1rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.1rem; }
+.fleetviz .tool { display: inline-flex; align-items: center; gap: 0.4em; margin-top: 0.7rem; font-family: var(--fmono); font-size: 10px; letter-spacing: 0.04em; color: var(--fgemini); border: 1px solid color-mix(in srgb, var(--fgemini) 38%, transparent); border-radius: 5px; padding: 0.15rem 0.45rem; background: color-mix(in srgb, var(--fgemini) 9%, transparent); }
+.fleetviz .seal { margin: 1.4rem 0; border: 1px solid var(--fgold); background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--fgold) 6%, transparent) 0 8px, transparent 8px 16px), color-mix(in srgb, var(--fgold) 10%, transparent); border-radius: 6px; padding: 1rem 1.1rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.1rem; }
 .fleetviz .seal .mark { font-family: var(--fmono); font-weight: 700; color: var(--fgold); letter-spacing: 0.06em; display: inline-flex; align-items: center; gap: 0.5em; font-size: 1.15rem; }
 .fleetviz .seal .mark::before { content: "◆"; }
-.fleetviz .seal .snote { color: #d9c78f; font-size: 0.98rem; }
-.fleetviz .seal .hash { font-family: var(--fmono); font-size: 11px; color: rgba(224, 178, 60, 0.65); margin-left: auto; }
-.fleetviz .verdict-chip { display: inline-flex; align-items: center; gap: 0.6em; border: 1px solid var(--fline); background: var(--fpanel2); border-radius: 8px; padding: 0.7rem 1.1rem; font-size: 1rem; color: var(--fdim); }
+.fleetviz .seal .snote { color: color-mix(in srgb, var(--fgold) 80%, var(--text)); font-size: 0.98rem; }
+.fleetviz .seal .hash { font-family: var(--fmono); font-size: 11px; color: color-mix(in srgb, var(--fgold) 65%, transparent); margin-left: auto; }
+.fleetviz .verdict-chip { display: inline-flex; align-items: center; gap: 0.6em; border: 1px solid var(--fline); background: var(--fpanel); border-radius: 6px; padding: 0.7rem 1.1rem; font-size: 1rem; color: var(--fdim); }
 .fleetviz .verdict-chip b { color: var(--ftext); font-weight: 600; }
-.fleetviz .foot { margin-top: 2.8rem; padding-top: 1.3rem; border-top: 1px solid var(--flinesoft); display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: baseline; font-size: 0.95rem; color: var(--ffaint); }
+.fleetviz .foot { margin-top: 2.8rem; padding-top: 1.3rem; border-top: 1px solid var(--fline); display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: baseline; font-size: 0.95rem; color: var(--ffaint); }
 .fleetviz .foot .count { font-family: var(--fmono); color: var(--fdim); }
 .fleetviz .foot .thesis { color: var(--fdim); }
-.fleetviz .foot .thesis b { background: var(--fgrad); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 700; }
+.fleetviz .foot .thesis b { color: var(--ftext); font-weight: 700; }
 .fleetviz .center { text-align: center; }

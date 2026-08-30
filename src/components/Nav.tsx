@@ -38,13 +38,13 @@ export function Nav() {
           </Link>
           <Link
             href="/chat"
-            className="rounded-md px-3 py-1.5 text-white/60 transition hover:bg-white/5 hover:text-white/90"
+            className="rounded-sm px-3 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text"
           >
             Assistant
           </Link>
           <Link
             href="/train"
-            className="rounded-md px-3 py-1.5 text-white/60 transition hover:bg-white/5 hover:text-white/90"
+            className="rounded-sm px-3 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text"
           >
             Train
           </Link>

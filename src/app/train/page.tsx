@@ -91,9 +91,9 @@ export default function Train() {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-16">
       <header>
-        <p className="brand-text text-[11px] font-semibold uppercase tracking-[0.24em]">Train</p>
-        <h1 className="mt-2 text-3xl font-medium tracking-tight text-white">Practice the exchange.</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/60">
+        <p className="label">Train</p>
+        <h1 className="mt-2 text-3xl font-medium tracking-tight text-text">Practice the exchange.</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-text-dim">
           Negotiate against a counterparty that adapts. Every move you make is read by the deterministic
           engine, which moves and re-seals the state — the bars below. The counterparty replies in
           character, consistent with a state it cannot change. The seal chain is re-verified every turn.
@@ -107,11 +107,11 @@ export default function Train() {
               key={s.id}
               type="button"
               onClick={() => reset(s.id)}
-              className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-left transition hover:border-violet-400/40 hover:bg-violet-500/[0.05]"
+              className="rounded-sm border border-ink-line bg-ink-raised p-4 text-left transition hover:border-text-faint"
             >
-              <p className="text-sm font-semibold text-white/90">{s.title}</p>
-              <p className="mt-1 text-xs leading-relaxed text-white/45">{s.premise}</p>
-              <span className="mt-3 inline-block font-mono text-[10px] text-violet-300">start →</span>
+              <p className="text-sm font-semibold text-text">{s.title}</p>
+              <p className="mt-1 text-xs leading-relaxed text-text-dim">{s.premise}</p>
+              <span className="mt-3 inline-block font-mono text-[10px] text-text-faint">start →</span>
             </button>
           ))}
         </div>
@@ -119,19 +119,25 @@ export default function Train() {
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-white/90">{scenario.title}</p>
-              <p className="mt-0.5 max-w-xl text-xs text-white/45">{scenario.premise}</p>
+              <p className="text-sm font-semibold text-text">{scenario.title}</p>
+              <p className="mt-0.5 max-w-xl text-xs text-text-dim">{scenario.premise}</p>
             </div>
             <button
               type="button"
               onClick={() => reset(null)}
-              className="rounded-md border border-white/10 px-3 py-1.5 text-xs text-white/50 transition hover:text-white/80"
+              className="rounded-sm border border-ink-line px-3 py-1.5 text-xs text-text-dim transition hover:text-text"
             >
               change scenario
             </button>
           </div>
 
-          <StateBars state={state} lastMove={turns.at(-1)?.move ?? null} chainValid={chainValid} mode={mode} round={turns.length} />
+          <StateBars
+            state={state}
+            lastMove={turns.at(-1)?.move ?? null}
+            chainValid={chainValid}
+            mode={mode}
+            round={turns.length}
+          />
 
           {turns.length > 0 && (
             <div className="flex flex-col gap-3">
@@ -142,7 +148,9 @@ export default function Train() {
           )}
 
           {error && (
-            <p className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">{error}</p>
+            <div className="rounded-sm border-l-2 border-[color:var(--v-manipulative)] bg-[color:var(--v-manipulative)]/10 p-4">
+              <p className="text-sm text-text">{error}</p>
+            </div>
           )}
 
           <div className="flex flex-col gap-3">
@@ -152,17 +160,17 @@ export default function Train() {
               rows={3}
               maxLength={4000}
               placeholder={turns.length === 0 ? 'Open the negotiation — make your first move.' : 'Your reply…'}
-              className="w-full resize-y rounded-lg border border-white/10 bg-black/30 p-4 text-sm leading-relaxed text-white/90 outline-none transition placeholder:text-white/25 focus:border-white/30"
+              className="w-full resize-y rounded-sm border border-ink-line bg-ink p-4 text-sm leading-relaxed text-text outline-none transition placeholder:text-text-faint focus:border-[color:var(--lens-aristotle-lit)]"
             />
             <div className="flex items-center justify-between">
-              <span className="text-xs text-white/30">
+              <span className="text-xs text-text-faint">
                 The counterparty adapts, but the numbers are the engine’s — not the model’s.
               </span>
               <button
                 type="button"
                 onClick={send}
                 disabled={sending || input.trim().length === 0}
-                className="rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition disabled:cursor-not-allowed disabled:bg-white/20 disabled:text-white/40"
+                className="rounded-sm bg-paper px-5 py-2 text-sm font-semibold text-paper-ink transition hover:bg-white disabled:cursor-not-allowed disabled:bg-ink-line disabled:text-text-faint"
               >
                 {sending ? 'Waiting…' : 'Send move'}
               </button>
@@ -187,27 +195,25 @@ function StateBars({
   mode: 'live' | 'mock' | null;
   round: number;
 }) {
-  const bars: Array<{ label: string; value: number; delta: number; color: string }> = [
-    {
-      label: 'Your leverage',
-      value: state?.perceivedUserLeverage ?? 50,
-      delta: lastMove?.applied.leverage ?? 0,
-      color: 'brand-gradient',
-    },
-    { label: 'Trust', value: state?.trust ?? 50, delta: lastMove?.applied.trust ?? 0, color: 'bg-emerald-400/70' },
-    { label: 'Patience', value: state?.patience ?? 50, delta: lastMove?.applied.patience ?? 0, color: 'bg-amber-400/70' },
+  const bars: Array<{ label: string; value: number; delta: number; hue: string }> = [
+    { label: 'Your leverage', value: state?.perceivedUserLeverage ?? 50, delta: lastMove?.applied.leverage ?? 0, hue: 'var(--lens-berne-lit)' },
+    { label: 'Trust', value: state?.trust ?? 50, delta: lastMove?.applied.trust ?? 0, hue: 'var(--v-clean)' },
+    { label: 'Patience', value: state?.patience ?? 50, delta: lastMove?.applied.patience ?? 0, hue: 'var(--v-mixed)' },
   ];
 
   return (
-    <div className="dot-grid rounded-xl border border-white/10 bg-white/[0.02] p-5">
+    <div className="ruled rounded-sm border border-ink-line bg-ink-raised p-5">
       <div className="mb-3 flex items-center justify-between">
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
+        <p className="label">
           Counterparty’s model of you {round > 0 ? `· round ${round}` : '· seeded'}
         </p>
         <span
-          className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] ${
-            chainValid ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-rose-500/40 bg-rose-500/10 text-rose-300'
-          }`}
+          className="rounded-sm border px-2.5 py-0.5 font-mono text-[10px]"
+          style={{
+            color: chainValid ? 'var(--v-clean)' : 'var(--v-manipulative)',
+            borderColor: `color-mix(in srgb, ${chainValid ? 'var(--v-clean)' : 'var(--v-manipulative)'} 40%, transparent)`,
+            background: `color-mix(in srgb, ${chainValid ? 'var(--v-clean)' : 'var(--v-manipulative)'} 9%, transparent)`,
+          }}
         >
           {chainValid ? 'chain verified' : 'chain broken'}
           {mode === 'mock' ? ' · fixture' : ''}
@@ -217,11 +223,11 @@ function StateBars({
         {bars.map((b) => (
           <div key={b.label}>
             <div className="flex items-baseline justify-between text-xs">
-              <span className="text-white/60">{b.label}</span>
-              <span className="font-mono tabular-nums text-white/45">
+              <span className="text-text-dim">{b.label}</span>
+              <span className="font-mono tabular-nums text-text-dim">
                 {b.value}
                 {b.delta !== 0 && (
-                  <span className={b.delta > 0 ? 'text-emerald-300' : 'text-rose-300'}>
+                  <span style={{ color: b.delta > 0 ? 'var(--v-clean)' : 'var(--v-manipulative)' }}>
                     {' '}
                     {b.delta > 0 ? '+' : ''}
                     {b.delta}
@@ -229,14 +235,17 @@ function StateBars({
                 )}
               </span>
             </div>
-            <div className="mt-1 h-2 w-full rounded-full border border-white/10 bg-black/40">
-              <div className={`h-full rounded-full transition-[width] duration-500 ${b.color}`} style={{ width: `${b.value}%` }} />
+            <div className="mt-1 h-2 w-full overflow-hidden rounded-full border border-ink-line bg-ink">
+              <div
+                className="h-full rounded-full transition-[width] duration-500"
+                style={{ width: `${b.value}%`, background: b.hue }}
+              />
             </div>
           </div>
         ))}
       </div>
       {state?.headHash && (
-        <p className="mt-3 break-all font-mono text-[10px] text-white/30">head {state.headHash.slice(0, 24)}…</p>
+        <p className="mt-3 break-all font-mono text-[10px] text-text-faint">head {state.headHash.slice(0, 24)}…</p>
       )}
     </div>
   );
@@ -245,16 +254,19 @@ function StateBars({
 function TurnBlock({ turn }: { turn: Turn }) {
   return (
     <div className="space-y-2">
-      <div className="ml-auto max-w-[80%] rounded-lg rounded-br-sm border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/85">
+      <div className="ml-auto max-w-[80%] rounded-sm border border-ink-line bg-ink-raised px-3 py-2 text-sm text-text">
         {turn.user}
       </div>
       <div className="flex items-start gap-2">
-        <div className="max-w-[80%] rounded-lg rounded-bl-sm border border-violet-400/25 bg-violet-500/[0.06] px-3 py-2 text-sm text-white/85">
+        <div
+          className="max-w-[80%] rounded-sm border border-ink-line bg-ink-raised px-3 py-2 text-sm text-text"
+          style={{ borderLeft: '2px dashed color-mix(in srgb, var(--lens-gemini-lit) 55%, transparent)' }}
+        >
           {turn.reply}
-          <span className="mt-1 block font-mono text-[10px] text-violet-300/70">{turn.mood}</span>
+          <span className="mt-1 block font-mono text-[10px] text-text-faint">{turn.mood}</span>
         </div>
       </div>
-      <p className="font-mono text-[10px] text-white/25">
+      <p className="font-mono text-[10px] text-text-faint">
         engine read: {turn.move.moveType} · leverage {fmt(turn.move.applied.leverage)} · trust{' '}
         {fmt(turn.move.applied.trust)} · patience {fmt(turn.move.applied.patience)}
       </p>

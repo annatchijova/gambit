@@ -7,31 +7,39 @@ import type { Stance, ThinkOutput } from '@/lib/schemas/think_schema';
  * GAMBIT YourMove — THINK panel.
  *
  * Three drafts, side by side, none marked "recommended". Each is copyable so the
- * user can take it into their own inbox and edit — because GAMBIT does not send.
- * The one non-negotiable message here is the banner: nothing leaves this screen.
+ * user can take it into their own inbox and edit. The one non-negotiable message
+ * is the banner: nothing leaves this screen.
+ *
+ * The three postures read on a cool-to-warm ramp borrowed from the lens palette —
+ * soft (grice teal) to direct (cialdini coral) — so the temperature of the reply
+ * is legible before a word is read.
  */
 
-const STANCE_META: Record<Stance, { label: string; accent: string; ring: string }> = {
-  soft: { label: 'Soft', accent: 'text-emerald-300', ring: 'border-emerald-500/30' },
-  tactical: { label: 'Tactical', accent: 'text-violet-300', ring: 'border-violet-400/30' },
-  direct: { label: 'Direct', accent: 'text-amber-300', ring: 'border-amber-500/30' },
+const STANCE_META: Record<Stance, { label: string; hue: string }> = {
+  soft: { label: 'Soft', hue: 'var(--lens-grice-lit)' },
+  tactical: { label: 'Tactical', hue: 'var(--lens-aristotle-lit)' },
+  direct: { label: 'Direct', hue: 'var(--lens-cialdini-lit)' },
 };
 
 export function ThinkPanel({ think, mode }: { think: ThinkOutput; mode: 'live' | 'mock' }) {
   return (
-    <section className="rounded-xl border border-white/10 bg-white/[0.02] p-6">
+    <section className="ruled rounded-sm border border-ink-line bg-ink-raised p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
-          Three ways to reply
-        </h2>
-        <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-medium tracking-wide text-amber-300">
-          drafts only · nothing is sent
-          {mode === 'mock' ? ' · fixture' : ''}
+        <h2 className="label">Three ways to reply</h2>
+        <span
+          className="rounded-sm border px-2.5 py-0.5 font-mono text-[10px] font-medium tracking-wide"
+          style={{
+            color: 'var(--lens-aristotle-lit)',
+            borderColor: 'color-mix(in srgb, var(--lens-aristotle-lit) 40%, transparent)',
+            background: 'color-mix(in srgb, var(--lens-aristotle-lit) 8%, transparent)',
+          }}
+        >
+          drafts only · nothing is sent{mode === 'mock' ? ' · fixture' : ''}
         </span>
       </div>
 
-      <p className="mt-3 rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-sm text-white/70">
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/35">Hold on to</span>
+      <p className="mt-3 rounded-sm border border-ink-line bg-ink px-3 py-2 text-sm text-text-dim">
+        <span className="label">Hold on to</span>
         <br />
         {think.principle}
       </p>
@@ -42,7 +50,7 @@ export function ThinkPanel({ think, mode }: { think: ThinkOutput; mode: 'live' |
         ))}
       </div>
 
-      <p className="mt-4 text-xs text-white/35">
+      <p className="mt-4 text-xs text-text-faint">
         You choose and edit. GAMBIT drafts the board; it does not make the move.
       </p>
     </section>
@@ -64,30 +72,33 @@ function OptionCard({ option }: { option: ThinkOutput['options'][number] }) {
   }
 
   return (
-    <div className={`flex flex-col rounded-lg border bg-black/20 ${meta.ring}`}>
-      <div className="flex items-center justify-between border-b border-white/8 px-3 py-2">
-        <span className={`font-mono text-xs font-bold uppercase tracking-wide ${meta.accent}`}>
+    <div
+      className="flex flex-col rounded-sm border bg-ink"
+      style={{ borderColor: 'color-mix(in srgb, ' + meta.hue + ' 32%, transparent)' }}
+    >
+      <div className="flex items-center justify-between border-b border-ink-line px-3 py-2">
+        <span className="font-mono text-xs font-bold uppercase tracking-wide" style={{ color: meta.hue }}>
           {meta.label}
         </span>
         <button
           type="button"
           onClick={copy}
-          className="font-mono text-[10px] text-white/40 transition hover:text-white/80"
+          className="font-mono text-[10px] text-text-faint transition hover:text-text"
         >
           {copied ? 'copied ✓' : 'copy'}
         </button>
       </div>
       <div className="flex flex-1 flex-col gap-3 p-3">
-        <p className="whitespace-pre-wrap rounded border border-white/10 bg-black/30 p-2.5 text-sm leading-relaxed text-white/85 select-all">
+        <p className="select-all whitespace-pre-wrap rounded-sm border border-ink-line bg-ink-raised p-2.5 text-sm leading-relaxed text-text">
           {option.draft}
         </p>
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/30">Why</p>
-          <p className="mt-0.5 text-[13px] text-white/55">{option.rationale}</p>
+          <p className="label">Why</p>
+          <p className="mt-0.5 text-[13px] text-text-dim">{option.rationale}</p>
         </div>
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/30">Watch out</p>
-          <p className="mt-0.5 text-[13px] text-white/50">{option.watchOut}</p>
+          <p className="label">Watch out</p>
+          <p className="mt-0.5 text-[13px] text-text-dim">{option.watchOut}</p>
         </div>
       </div>
     </div>

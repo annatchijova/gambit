@@ -112,7 +112,7 @@ function Field({ term, desc, accent }: { term: string; desc: string; accent?: bo
   return (
     <div>
       <dt className={`text-xs ${accent ? 'text-rose-300/80' : 'text-text-faint'}`}>{term}</dt>
-      <dd className="mt-1 text-sm leading-relaxed text-white/75">{desc}</dd>
+      <dd className="mt-1 text-sm leading-relaxed text-text-dim">{desc}</dd>
     </div>
   );
 }

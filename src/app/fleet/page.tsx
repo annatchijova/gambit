@@ -55,25 +55,25 @@ export default function Fleet() {
             <span className="flow">↓</span>
 
             <div className="grid">
-              <div className="card rule">
+              <div className="card rule grice">
                 <span className="top" />
                 <span className="glyph">G</span>
                 <div className="id">Grice</div>
                 <div className="role">evasion, obfuscation</div>
               </div>
-              <div className="card rule">
+              <div className="card rule cialdini">
                 <span className="top" />
                 <span className="glyph">C</span>
                 <div className="id">Cialdini</div>
                 <div className="role">influence tactics</div>
               </div>
-              <div className="card rule">
+              <div className="card rule aristotle">
                 <span className="top" />
                 <span className="glyph">A</span>
                 <div className="id">Aristotle</div>
                 <div className="role">pathos vs logos</div>
               </div>
-              <div className="card rule">
+              <div className="card rule berne">
                 <span className="top" />
                 <span className="glyph">B</span>
                 <div className="id">Berne</div>

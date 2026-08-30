@@ -55,11 +55,11 @@ export function Examples({ onPick, disabled }: { onPick: (message: string) => vo
             type="button"
             disabled={disabled}
             onClick={() => onPick(ex.message)}
-            className="group rounded-sm border border-ink-line bg-ink-raised p-3 text-left transition hover:border-violet-400/40 hover:bg-violet-500/[0.05] disabled:cursor-not-allowed disabled:opacity-40"
+            className="group rounded-sm border border-ink-line bg-ink-raised p-3 text-left transition hover:border-text-faint disabled:cursor-not-allowed disabled:opacity-40"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="text-sm font-medium text-white/85">{ex.label}</span>
-              <span className="font-mono text-[10px] text-text-faint transition group-hover:text-violet-300">
+              <span className="text-sm font-medium text-text">{ex.label}</span>
+              <span className="font-mono text-[10px] text-text-faint transition group-hover:text-text">
                 run →
               </span>
             </div>
