@@ -1,0 +1,36 @@
+name: verify
+
+# The whole point of this workflow is the clean checkout. Every check below
+# runs locally too, but only CI runs them against a tree with no .next/, no
+# stale node_modules and nothing a developer happens to have lying around —
+# which is the state a judge cloning this repository will be in.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # `npm ci` rather than `npm install`: it installs exactly the lockfile and
+      # fails if package.json and the lock have drifted apart.
+      - run: npm ci
+
+      # typecheck + lint + docs freshness + classifier regression + tests.
+      # Touches no network, needs no credentials — the reason it can run here
+      # at all. `typecheck` generates Next's route types itself.
+      - run: npm run verify
+
+      # A green `verify` does not prove the app builds: verify typechecks the
+      # sources, build also compiles routes and prerenders the static pages.
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'

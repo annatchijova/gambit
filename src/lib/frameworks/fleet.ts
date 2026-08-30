@@ -1,5 +1,5 @@
 import { Fraction, sumFractions } from '../fraction';
-import { canonicalJson, sha256 } from '../state_rules';
+import { sha256 } from '../state_rules';
 import { normaliseMessage } from '../state_rules';
 import type { FrameworkAnalyzer, FrameworkName, FrameworkSignal } from './types';
 import { analyzeGrice } from './grice';
@@ -7,6 +7,7 @@ import { analyzeCialdini } from './cialdini';
 import { analyzeAristotle } from './aristotle';
 import { analyzeBerne } from './berne';
 import { assessScope, type Coverage } from './scope';
+import { fleetSealInput } from './seal_payload';
 
 /**
  * GAMBIT YourMove — the framework fleet.
@@ -224,24 +225,21 @@ export function runFleet(raw: string): FleetVerdict {
 
   const sealed = signals.map(toSealed);
 
-  // The sealed payload. Everything the verdict rests on, canonicalised and
-  // hashed. Note the score travels as an exact "n/d" string, never a float.
-  const payload = {
-    version: FLEET_SEAL_VERSION,
-    schemaVersion: FLEET_SCHEMA_VERSION,
-    level,
-    score: score.toString(),
-    corroboration: active.length,
-    gatePassed,
-    signals: sealed.map((s) => ({
-      framework: s.framework,
-      severity: s.severity,
-      tags: s.tags,
-      evidence: s.evidence,
-    })),
-    crashed: [...crashedFrameworks].sort(),
-  };
-  const seal = sha256(canonicalJson(payload));
+  // Everything the verdict rests on, canonicalised and hashed. The payload is
+  // defined once, in seal_payload.ts, and shared with the verifier below and
+  // with the browser-side verifier — so the three can never drift apart.
+  const seal = sha256(
+    fleetSealInput({
+      sealVersion: FLEET_SEAL_VERSION,
+      schemaVersion: FLEET_SCHEMA_VERSION,
+      level,
+      score: score.toString(),
+      corroboration: active.length,
+      gatePassed,
+      signals: sealed,
+      crashedFrameworks,
+    }),
+  );
 
   return {
     schemaVersion: FLEET_SCHEMA_VERSION,
@@ -270,20 +268,5 @@ export function runFleet(raw: string): FleetVerdict {
  * narrator LLM has run.
  */
 export function verifyFleetSeal(v: FleetVerdict): boolean {
-  const payload = {
-    version: v.sealVersion,
-    schemaVersion: v.schemaVersion,
-    level: v.level,
-    score: v.score,
-    corroboration: v.corroboration,
-    gatePassed: v.gatePassed,
-    signals: v.signals.map((s) => ({
-      framework: s.framework,
-      severity: s.severity,
-      tags: s.tags,
-      evidence: s.evidence,
-    })),
-    crashed: [...v.crashedFrameworks].sort(),
-  };
-  return sha256(canonicalJson(payload)) === v.seal;
+  return sha256(fleetSealInput(v)) === v.seal;
 }

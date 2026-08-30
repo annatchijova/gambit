@@ -226,6 +226,21 @@ coach's has not been measured, and the field corpus that could measure it is
 empty. The lenses are lexical heuristics. Determinism and accuracy are different
 properties and only one of them is in evidence.
 
+### Do not take our word for it
+
+The panel carries a **Verify seal** button. It rebuilds the sealed payload from
+the numbers currently on screen and recomputes the SHA-256 with the browser's
+own Web Crypto — no request, no server asked to vouch for itself. If a byte had
+been altered after sealing, the digest would not match.
+
+A match proves **integrity, not truth**: the levels, scores, severities and
+evidence shown are the ones the fleet committed to before Gemini was called. It
+does not prove they are right.
+
+The payload is defined once, in `src/lib/frameworks/seal_payload.ts`, and shared
+by the sealer, the server-side verifier and the browser — so the three cannot
+drift into checking different things.
+
 ### Failure is visible, never silent
 
 The Day 1 spike found that `Runner.runAsync()` does not throw when a model
@@ -256,6 +271,7 @@ src/
   components/
     ReadCard.tsx             the model's reading, with the uncertainty layer
     FleetPanel.tsx           per-lens severities, core-vs-model divergence, seal strip
+    SealVerifier.tsx         recomputes the SHA-256 in the reader's own browser
     PipelineDiagram.tsx      seal-then-narrate pipeline, drawn
     Examples.tsx             one-click sample messages, including a clean control
     Nav.tsx Footer.tsx site.ts
@@ -267,6 +283,8 @@ src/
       semantic.ts            the model's vote — the pure, testable half
       composite.ts           core + vote → composite verdict and divergence
       scope.ts               guards against a confident CLEAN on an unreadable message
+      seal_payload.ts        what a seal covers — one definition, shared with the browser
+    canonical.ts             canonical JSON; client-safe, so the browser can re-hash
     fraction.ts              exact rational arithmetic; no float reaches a seal
     read_verdict.ts          assembles one message's composite verdict
     state_rules.ts           the deterministic state engine (for TRAIN)

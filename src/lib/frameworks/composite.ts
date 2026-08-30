@@ -1,5 +1,6 @@
 import { Fraction } from '../fraction';
-import { canonicalJson, sha256 } from '../state_rules';
+import { sha256 } from '../state_rules';
+import { compositeSealInput } from './seal_payload';
 import {
   levelFor,
   type FleetConfidence,
@@ -89,25 +90,17 @@ function sealOf(
   level: FleetLevel,
   score: string,
 ): string {
-  const payload = {
-    version: COMPOSITE_SEAL_VERSION,
-    schemaVersion: COMPOSITE_SCHEMA_VERSION,
-    coreSeal: core.seal,
-    determinismLevel,
-    level,
-    score,
-    semantic: semantic
-      ? {
-          available: semantic.available,
-          grid: semantic.grid,
-          severity: semantic.severity,
-          tactic: semantic.tactic,
-          evidence: semantic.evidence,
-          model: semantic.model,
-        }
-      : null,
-  };
-  return sha256(canonicalJson(payload));
+  return sha256(
+    compositeSealInput({
+      sealVersion: COMPOSITE_SEAL_VERSION,
+      schemaVersion: COMPOSITE_SCHEMA_VERSION,
+      coreSeal: core.seal,
+      determinismLevel,
+      level,
+      score,
+      semantic,
+    }),
+  );
 }
 
 /**
@@ -142,9 +135,40 @@ export function composeVerdict(
     };
   }
 
-  // --- Model voted: blend, classify, and flag best_effort. ------------------
-  const coreScore = Fraction.parse(core.score);
   const semanticScore = Fraction.parse(semantic.severity);
+
+  // --- The core could not read the message: do NOT blend. -------------------
+  //
+  // An out-of-scope core scores 0 — and that 0 means "no rule could look",
+  // not "nothing found". Averaging it against the model's vote manufactures a
+  // number out of one real reading and one absence, and makes the divergence
+  // panel report the rule engine as "saying CLEAN" when it said nothing at all.
+  //
+  // So the model's vote stands alone, labelled as standing alone. There is no
+  // divergence to show, because a disagreement needs two opinions.
+  if (core.coverage === 'out_of_scope') {
+    const level = levelFor(semanticScore);
+    const score = semanticScore.toString();
+    return {
+      schemaVersion: COMPOSITE_SCHEMA_VERSION,
+      sealVersion: COMPOSITE_SEAL_VERSION,
+      core,
+      semantic,
+      determinismLevel: 'best_effort_with_semantic',
+      requiresRebuild: true,
+      level,
+      score,
+      scorePercent: semanticScore.toPercent(),
+      // One unverifiable reading with nothing to corroborate it is the weakest
+      // thing this system can produce, and it says so.
+      confidence: 'Low',
+      divergence: null,
+      seal: sealOf(core, semantic, 'best_effort_with_semantic', level, score),
+    };
+  }
+
+  // --- Model voted and the core is usable: blend, classify, flag. -----------
+  const coreScore = Fraction.parse(core.score);
   const blended = coreScore
     .mul(Fraction.ONE.sub(SEMANTIC_WEIGHT))
     .add(semanticScore.mul(SEMANTIC_WEIGHT))

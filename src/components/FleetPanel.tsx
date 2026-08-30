@@ -1,4 +1,5 @@
 import type { CompositeVerdict, FleetLevel, SealedSignal } from '@/lib/frameworks';
+import { SealVerifier } from './SealVerifier';
 import {
   FRAMEWORK_META,
   LEVEL_BAR,
@@ -47,17 +48,13 @@ export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/35">
-              {outOfScope ? 'No reading available' : 'Sealed verdict'}
+              {outOfScope ? 'Model-only reading — nothing sealed by the rules' : 'Sealed verdict'}
             </p>
             <div className="mt-1 flex items-baseline gap-3">
-              <span
-                className={`font-mono text-3xl font-bold tracking-tight ${
-                  outOfScope ? 'text-amber-300' : s.text
-                }`}
-              >
-                {outOfScope ? 'NO VERDICT' : verdict.level}
+              <span className={`font-mono text-3xl font-bold tracking-tight ${s.text}`}>
+                {semantic?.available ? verdict.level : 'NO VERDICT'}
               </span>
-              {!outOfScope && (
+              {(!outOfScope || semantic?.available) && (
                 <span className="font-mono text-lg tabular-nums text-white/40">
                   {verdict.scorePercent}%
                 </span>
@@ -65,7 +62,9 @@ export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
             </div>
             <p className="mt-1.5 max-w-md text-sm text-white/50">
               {outOfScope
-                ? 'No rule matched, because none could read this message. That is not the same as finding nothing wrong.'
+                ? semantic?.available
+                  ? 'Gemini read this message; the rule engine could not. Nothing here is corroborated by a deterministic lens, so it rests on one unverifiable opinion.'
+                  : 'No rule matched, because none could read this message — and the model did not answer either. That is not the same as finding nothing wrong.'
                 : s.gloss}
             </p>
           </div>
@@ -87,12 +86,16 @@ export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
                   : 'No usable model vote — this verdict is the deterministic core, replayable exactly.'
               }
             >
-              {bestEffort ? 'best-effort' : 'deterministic · replayable'}
+              {outOfScope ? 'model only · rules out of scope' : bestEffort ? 'best-effort' : 'deterministic · replayable'}
             </span>
           </div>
         </div>
 
-        <ScoreBar compositePercent={verdict.scorePercent} corePercent={core.scorePercent} />
+        {/* The core marker would read 0% here, which means "unread", not
+            "clean" — a bar cannot say that, so it is not drawn. */}
+        {!outOfScope && (
+          <ScoreBar compositePercent={verdict.scorePercent} corePercent={core.scorePercent} />
+        )}
       </div>
 
       <div className="space-y-6 p-6">
@@ -139,9 +142,11 @@ export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
         </div>
 
         {/* Chain of custody ------------------------------------------------ */}
-        <div>
+        <div className="space-y-3">
           <SectionLabel n="03">Chain of custody</SectionLabel>
           <SealChain verdict={verdict} />
+          {/* The claim above is checkable, so let the reader check it. */}
+          <SealVerifier verdict={verdict} />
         </div>
       </div>
     </section>
