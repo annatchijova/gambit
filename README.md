@@ -20,6 +20,10 @@ Cloud Run on Vertex AI. **THINK**, **TRAIN** and **SCORE** are not built and
 are deliberately absent from the interface rather than stubbed, so nothing on
 screen promises a capability that does not exist.
 
+READ analyses **English-language** messages. The four deterministic lenses are
+English lexical patterns, so a message in another language fires none of them —
+the scope is stated up front here and measured under [Known gaps](#known-gaps).
+
 What is settled, and how:
 
 - Live model access is **confirmed**, not assumed — `npm run verify:model`
@@ -295,6 +299,24 @@ the code.
 - **No accuracy claim is available.** The field corpus is empty, so nothing in
   this repository licenses a statement about whether either engine labels
   messages the way a human coach would.
+- **English only, by scope.** All four lenses are English lexical patterns,
+  down to the contractions (`won't last`, `you're`, `i've`). A non-English
+  message fires none of them, so the deterministic core returns CLEAN with zero
+  corroboration. Measured on the same message in two languages:
+
+  | Message | Level | Score | Corroboration |
+  |---|---|---|---|
+  | English | MIXED | 43% | 2 lenses |
+  | Spanish | CLEAN | 0% | 0 lenses |
+
+  Gemini is multilingual and the READ prompt does not restrict language, so the
+  model half is expected to keep voting normally — which would make the
+  divergence panel report a core-vs-model split on *every* non-English message.
+  That is not the architecture failing; it is the lexicons being out of scope.
+  Untested against a live model, and stated as an expectation rather than a
+  finding. Supporting a second language means porting all four lexicons, not
+  translating the interface.
+
 - **The lexical lenses under-match real phrasing.** On a live read of a
   blatantly manipulative message, the fleet returned CLEAN (only Aristotle
   fired) while the model returned MANIPULATIVE 16/20: the patterns require
