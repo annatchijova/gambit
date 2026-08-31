@@ -81,18 +81,23 @@ function shortHash(h: string | null): string {
   return `${h.slice(0, 10)}…${h.slice(-6)}`;
 }
 
+async function fetchWatchPass(): Promise<WatchResponse> {
+  const res = await fetch('/api/watch?draft=1', { cache: 'no-store' });
+  if (!res.ok) throw new Error(`The watch pass returned ${res.status}.`);
+  return (await res.json()) as WatchResponse;
+}
+
 export default function WatchPage() {
   const [data, setData] = useState<WatchResponse | null>(null);
-  const [loading, setLoading] = useState(false);
+  // Starts true: the mount effect runs a pass immediately.
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const run = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/watch?draft=1', { cache: 'no-store' });
-      if (!res.ok) throw new Error(`The watch pass returned ${res.status}.`);
-      setData((await res.json()) as WatchResponse);
+      setData(await fetchWatchPass());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'The watch pass failed.');
     } finally {
@@ -100,9 +105,25 @@ export default function WatchPage() {
     }
   }, []);
 
+  // Auto-run once on mount. The effect body performs no synchronous setState —
+  // it awaits the pass before touching state — so it triggers no cascading
+  // renders (react-hooks/set-state-in-effect).
   useEffect(() => {
-    void run();
-  }, [run]);
+    let cancelled = false;
+    void (async () => {
+      try {
+        const pass = await fetchWatchPass();
+        if (!cancelled) setData(pass);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : 'The watch pass failed.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <main
