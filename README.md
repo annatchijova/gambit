@@ -14,6 +14,15 @@ not decide anything on your behalf.
 
 **Live:** <https://gambit-yourmove-1028999311218.us-central1.run.app>
 
+### WATCH is scheduled and green on Google Cloud
+
+`gambit-watch` runs the autonomous inbox-triage pass every 15 minutes on
+**Google Cloud Scheduler** — live and error-free, no human in the loop.
+
+<p align="center">
+  <img src="visual/autonomo.png" alt="gambit-watch live and green on Google Cloud Scheduler" width="900">
+</p>
+
 > ### New — WATCH, the autonomous mode
 > Most AI waits to be asked. **WATCH does not.** It is an agent that reads a whole
 > inbox on its own in the background, **seals a verdict for every message before
