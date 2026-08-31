@@ -20,7 +20,7 @@ export function Footer() {
 
         <p className="mt-6 text-sm text-text-dim">
           <span className="label">Built by</span>{' '}
-          <span className="font-[family-name:var(--font-read)] text-lg italic text-text">Olga Vasilieva</span>
+          <span className="font-[family-name:var(--font-read)] text-lg italic text-text">Olga Vasilieva and Anna Tchijova</span>
         </p>
 
         <div className="mt-5 flex flex-wrap gap-1.5">
@@ -49,7 +49,7 @@ export function Footer() {
           >
             Apache-2.0
           </a>
-          <span className="text-text-faint">© 2026 Olga Vasilieva</span>
+          <span className="text-text-faint">© 2026 Olga Vasilieva and Anna Tchijova</span>
         </div>
       </div>
     </footer>
