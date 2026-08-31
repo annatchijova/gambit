@@ -1,5 +1,4 @@
-# GAMBIT YourMove
-
+# GAMBIT 
 **Tactical AI copilot for high-stakes negotiations.**
 
 You are about to reply to a message that will cost you money. GAMBIT reads
