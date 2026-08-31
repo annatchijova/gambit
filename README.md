@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="visual/01.jpeg" alt="GAMBIT" width="680">
+</p>
+
 # GAMBIT 
 **Tactical AI copilot for high-stakes negotiations.**
 
@@ -558,3 +562,36 @@ Gemini 3.5 Flash and 3.5 Flash-Lite · Vertex AI · Cloud Run · Vitest
 ## Licence
 
 [Apache License 2.0](LICENSE). Copyright 2026 Olga Vasilieva and Anna Tchijova.
+
+
+---
+
+## Architecture
+
+<p align="center">
+  <img src="visual/02.png" alt="GAMBIT architecture" width="920">
+</p>
+
+## Screenshots
+
+<p align="center">
+  <img src="visual/03.png" width="49%">
+  <img src="visual/04.png" width="49%">
+  <img src="visual/05.png" width="49%">
+  <img src="visual/06.png" width="49%">
+  <img src="visual/07.png" width="49%">
+  <img src="visual/08.png" width="49%">
+  <img src="visual/09.png" width="49%">
+  <img src="visual/10.png" width="49%">
+  <img src="visual/11.png" width="49%">
+  <img src="visual/12.png" width="49%">
+  <img src="visual/13.png" width="49%">
+  <img src="visual/14.png" width="49%">
+  <img src="visual/15.png" width="49%">
+  <img src="visual/16.png" width="49%">
+  <img src="visual/17.png" width="49%">
+  <img src="visual/18.png" width="49%">
+  <img src="visual/19.png" width="49%">
+  <img src="visual/20.png" width="49%">
+  <img src="visual/21.png" width="49%">
+</p>
