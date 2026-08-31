@@ -57,6 +57,12 @@ export function Nav() {
             How it works
           </Link>
           <a
+            href="/deck.html"
+            className="rounded-sm px-2 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text sm:px-3"
+          >
+            Deck
+          </a>
+          <a
             href={REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
