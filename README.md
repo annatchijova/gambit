@@ -30,6 +30,12 @@ What is settled, and how:
 - Live model access is **confirmed**, not assumed — `npm run verify:model`
   against Vertex AI returned successfully for both `gemini-3.5-flash` and
   `gemini-3.5-flash-lite` (evidence in [`docs/model_access.md`](docs/model_access.md)).
+- **These are real Gemini calls, not mocks.** The live read runs
+  `gemini-3.5-flash` on Vertex AI — the deployed logs show
+  `model: gemini-3.5-flash, backend: VERTEX_AI` on every request. A fixture can
+  never pose as a live read: mock mode exists only behind `GAMBIT_MOCK=true` and
+  always tags its output `mode: "mock"` with a visible badge. Verify:
+  `curl -s -X POST <service-url>/api/read -H 'content-type: application/json' -d '{"message":"Act now, last chance."}'` returns `"mode":"live"`.
 - READ no longer relies on the model for its verdict. A deterministic fleet of
   four framework lenses reads the message and **seals** a verdict before any
   model is called; the model votes beside it. See
