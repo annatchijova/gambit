@@ -24,6 +24,17 @@ not decide anything on your behalf.
 > **`/watch`**, endpoint at **`GET /api/watch`**.
 > **→ [Jump to WATCH](#watch--the-autonomous-mode)**
 
+## Proof it runs on Google Cloud
+
+Live on **Cloud Run** (`us-central1`), sealed on **Vertex AI**, and the WATCH
+loop is driven by **Cloud Scheduler** (`gambit-watch`, cron `*/15`). Straight
+from the Google Cloud Console:
+
+<p align="center">
+  <img src="visual/gcp-cloudrun-metrics.png" alt="gambit-yourmove on Cloud Run — request and latency metrics" width="440">
+  <img src="visual/gcp-cloudrun-logs.png" alt="gambit-yourmove on Cloud Run — live request logs (GET 200)" width="440">
+</p>
+
 ---
 
 ## What GAMBIT does
