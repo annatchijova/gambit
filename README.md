@@ -12,10 +12,45 @@ not decide anything on your behalf.
 
 ---
 
+## What GAMBIT does
+
+You paste a message you are about to answer, and GAMBIT makes visible **which words are doing the work** — how much pressure the message is applying, how strong the signal is, and the concrete evidence behind that reading. It runs the message through **two separate layers**.
+
+**1. A deterministic layer.** Four rule-based lenses read the text:
+
+- **Grice** — evasion, ambiguity, violations of the cooperative principle.
+- **Cialdini** — influence levers: reciprocity, scarcity, social proof, authority.
+- **Aristotle** — an imbalance of *pathos* over *logos*.
+- **Berne** — ulterior transactions and role dynamics.
+
+A lens cannot just say "this feels manipulative" — to fire, it has to point at a **concrete text span**, which turns an accusation into something you can inspect: *"this phrase was the evidence."* The signals are aggregated by deterministic rules through a **corroboration gate** — one lens alone cannot turn noise into a strong accusation — and the verdict is **sealed with SHA-256 before Gemini is ever called.**
+
+**2. Gemini as a second reading.** Only then does Gemini read the same message, from a broader semantic angle that catches what the rules missed — **but it cannot change the sealed verdict.** And when the rules and the model disagree, GAMBIT **shows the disagreement instead of hiding it.** Two real reads from the live app:
+
+- *"I need your written confirmation by 5 PM today…"* → the rules fired concrete spans across three lenses; Gemini read it more broadly as an **Escalation Threat and Forced Deadline.**
+- *"The going rate for this scope is around 95k based on comparable roles I pulled…"* → all four lenses returned **CLEAN**; Gemini flagged only a weak signal of **market-rate anchoring.** GAMBIT shows both, side by side.
+
+### What it gives back — a map of the negotiation, not just a number
+
+- **Evidence** — the exact words that triggered each reading.
+- **Verdict** — e.g. `PERSUASIVE · 52%`. Not "this person is a manipulator", but: *a persuasion signal is active here; it may be legitimate, so weigh the sender's interest.*
+- **Confidence, separate from severity** — a signal can be strong but poorly supported, or weak but corroborated across several lenses.
+- **A semantic read** — Gemini can explain the whole pattern (what the other side seems to want, the leverage they are using, the risk to you, an alternative interpretation) — best-effort, and visually separated from the sealed part.
+
+It can also tell you when it finds **nothing**: a plain benchmark, a firm price, a real deadline come back `CLEAN`. GAMBIT is not "AI detects evil humans" — it helps you **inspect the mechanics of a message.**
+
+### Then you decide
+
+Ask Gemini *"Why did the rules and Gemini disagree?"*, *"What would make this a clean message?"*, or *"Which lens is doing the most work here?"* — it explains, without touching the verdict. Hit **Draft my reply →** and Gemini writes **three postures — Soft, Tactical, Direct** — none marked "recommended", each naming what it gives away. **GAMBIT drafts; you choose, you edit, you send.** There is no send button anywhere in the product.
+
+> **AI increases agency. It does not replace it.** GAMBIT turns *"something feels off about this message"* into inspectable evidence — before you respond.
+
+---
+
 ## Status
 
-Day 4 of a 14-day build, deployed to Cloud Run on Vertex AI. The read, the
-questions about it, drafting, practice and the assistant are all built and live
+Built and deployed on Cloud Run with Vertex AI. The read, the questions about
+it, drafting, practice and the assistant are all built and live
 (see [What is built](#what-is-built)). Deeper legal reading, coaching and
 scoring are not — and are deliberately absent from the interface rather than
 stubbed, so nothing on screen promises a capability that does not exist.
