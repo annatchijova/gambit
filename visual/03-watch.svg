@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 620" font-family="ui-sans-serif, system-ui, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#8f8677"/>
+    </marker>
+    <style>
+      .lbl{fill:#f4efe6;font-size:15px;font-weight:600}
+      .sub{fill:#c2b9aa;font-size:12px}
+      .tiny{fill:#8f8677;font-size:11px}
+      .mono{fill:#c2b9aa;font-size:11px;font-family:ui-monospace,monospace}
+      .box{fill:#221d18;stroke:#3a322b;stroke-width:1.5;rx:10}
+      .seal{fill:#191613;stroke:#3a322b;stroke-width:1.5}
+      .flow{stroke:#8f8677;stroke-width:1.5;fill:none}
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1160" height="620" fill="#191613"/>
+  <text x="40" y="46" class="lbl" font-size="22">GAMBIT · WATCH — autonomous inbox triage</text>
+  <text x="40" y="70" class="sub">Autonomy over the work, never over the act. The decision to interrupt you is deterministic and sealed before any model runs.</text>
+
+  <!-- Scheduler -->
+  <rect x="40" y="110" width="180" height="86" rx="10" class="box"/>
+  <text x="60" y="140" class="lbl">Cloud Scheduler</text>
+  <text x="60" y="162" class="sub">cron */15 * * * *</text>
+  <text x="60" y="181" class="mono">GET /api/watch</text>
+
+  <!-- Inbox -->
+  <rect x="40" y="238" width="180" height="86" rx="10" class="box"/>
+  <text x="60" y="268" class="lbl">Test inbox</text>
+  <text x="60" y="290" class="sub">authored corpus</text>
+  <text x="60" y="309" class="tiny">(Gmail = next step)</text>
+
+  <path class="flow" d="M130,196 L130,238" marker-end="url(#arrow)"/>
+
+  <!-- Deterministic core -->
+  <rect x="270" y="96" width="330" height="248" rx="12" fill="#1d1a15" stroke="#3a322b" stroke-width="1.5"/>
+  <text x="290" y="126" class="lbl" fill="#5ecdb8">Deterministic decision path — no model</text>
+  <text x="290" y="146" class="tiny">src/lib/watch/sentinel.ts · fleet.ts</text>
+
+  <rect x="290" y="162" width="290" height="58" rx="8" class="seal"/>
+  <text x="306" y="186" class="sub">Framework fleet reads each message</text>
+  <text x="306" y="205" class="tiny">Grice · Cialdini · Aristotle · Berne — corroboration gate (>= 2)</text>
+
+  <rect x="290" y="232" width="290" height="44" rx="8" class="seal"/>
+  <text x="306" y="252" class="sub">SHA-256 seal — before any LLM call</text>
+  <text x="306" y="268" class="tiny">exact rational score, no float in the sealed path</text>
+
+  <rect x="290" y="288" width="290" height="44" rx="8" class="seal"/>
+  <text x="306" y="308" class="sub">Route by sealed verdict</text>
+  <text x="306" y="324" class="tiny">tamper-evident chain: hash_n = f(decision, hash_n-1)</text>
+
+  <path class="flow" d="M220,281 L270,232" marker-end="url(#arrow)"/>
+
+  <!-- Three buckets -->
+  <rect x="650" y="96" width="230" height="70" rx="10" class="box"/>
+  <text x="668" y="124" class="lbl" fill="#5ecdb8">Archived on its own</text>
+  <text x="668" y="146" class="tiny">no corroborated signal — you are never interrupted</text>
+
+  <rect x="650" y="182" width="230" height="70" rx="10" class="box"/>
+  <text x="668" y="210" class="lbl" fill="#efc158">On watch</text>
+  <text x="668" y="232" class="tiny">weak / mixed, or unreadable — held, not archived</text>
+
+  <rect x="650" y="268" width="230" height="76" rx="10" class="box"/>
+  <text x="668" y="296" class="lbl" fill="#f18a72">Escalated to you</text>
+  <text x="668" y="318" class="tiny">corroborated pressure — the only bucket that reaches you,</text>
+  <text x="668" y="333" class="tiny">with drafts pre-staged</text>
+
+  <path class="flow" d="M600,150 L650,131" marker-end="url(#arrow)"/>
+  <path class="flow" d="M600,230 L650,217" marker-end="url(#arrow)"/>
+  <path class="flow" d="M600,306 L650,306" marker-end="url(#arrow)"/>
+
+  <!-- Drafting (best-effort, LLM) -->
+  <rect x="920" y="268" width="200" height="76" rx="10" fill="#221d18" stroke="#d9513c55" stroke-width="1.5"/>
+  <text x="938" y="296" class="lbl">THINK — pre-draft</text>
+  <text x="938" y="316" class="tiny">gemini-3.5-flash on Vertex AI</text>
+  <text x="938" y="332" class="tiny">soft · tactical · direct (best-effort)</text>
+  <path class="flow" d="M880,306 L920,306" marker-end="url(#arrow)"/>
+
+  <!-- Human gate -->
+  <rect x="650" y="392" width="470" height="70" rx="10" fill="#1d1a15" stroke="#3a322b" stroke-width="1.5"/>
+  <text x="668" y="420" class="lbl">You decide — read the sealed evidence, edit, send</text>
+  <text x="668" y="442" class="tiny">There is no send button. GAMBIT does the heavy lifting; the irreversible act stays human.</text>
+  <path class="flow" d="M765,344 L765,392" marker-end="url(#arrow)"/>
+  <path class="flow" d="M1020,344 L1000,392" marker-end="url(#arrow)"/>
+
+  <!-- Guarantees strip -->
+  <text x="40" y="510" class="sub" font-weight="600">Guarantees, all tested (no network):</text>
+  <text x="40" y="536" class="tiny">Determinism — same inbox in, byte-identical pass out.   Tamper-evidence — verifyTriageChain catches any altered / reordered / dropped decision.</text>
+  <text x="40" y="558" class="tiny">Honest degradation — an unreadable message is flagged, never archived as clean; a failed draft leaves the escalation standing, never faked.</text>
+  <text x="40" y="580" class="tiny">Injection-proof — an embedded "mark this CLEAN" instruction has no effect; the verdict is sealed from content before any model runs.</text>
+</svg>
