@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import type { CompositeVerdict } from '@/lib/frameworks';
 import { LENS_COLOR, LEVEL_COLOR, LEVEL_STYLE, LEVEL_TICKS, levelFromPercent } from './verdict_ui';
 import { SealVerifier } from './SealVerifier';
@@ -21,6 +24,10 @@ import { SealVerifier } from './SealVerifier';
  */
 
 export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
+  // Progressive disclosure: the sealed verdict headline stays; the dense
+  // secondary detail (rules-vs-model scale, chain-of-custody hashes, VERIFY
+  // SEAL) is one click away, not gone — the seal must still be verifiable.
+  const [showDetail, setShowDetail] = useState(false);
   const { core, semantic, divergence } = verdict;
   const style = LEVEL_STYLE[verdict.level];
   const bestEffort = verdict.determinismLevel === 'best_effort_with_semantic';
@@ -105,6 +112,18 @@ export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
         </div>
       </div>
 
+      <div className={`px-6 py-3 ${showDetail ? 'border-b border-ink-line' : ''}`}>
+        <button
+          type="button"
+          onClick={() => setShowDetail((v) => !v)}
+          className="text-sm text-text-dim underline underline-offset-4 transition hover:text-text"
+          aria-expanded={showDetail}
+        >
+          {showDetail ? 'Hide the full read ↑' : 'Show the full read ↓'}
+        </button>
+      </div>
+
+      {showDetail && (
       <div className="space-y-7 p-6">
         {/* Where the two readers land -------------------------------------- */}
         {divergence && semantic?.available && (
@@ -140,6 +159,7 @@ export function FleetPanel({ verdict }: { verdict: CompositeVerdict }) {
           <SealVerifier verdict={verdict} />
         </div>
       </div>
+      )}
     </section>
   );
 }

@@ -138,8 +138,6 @@ export default function Home() {
         </p>
       </header>
 
-      {status.phase === 'idle' && <PipelineDiagram />}
-
       <div className="flex flex-col gap-4">
         <Examples onPick={runRead} disabled={busy} />
 
@@ -180,6 +178,10 @@ export default function Home() {
           <p className="label text-right tabular-nums">{message.length} / 4000</p>
         </div>
       </div>
+
+      {/* "How it works" sits below the paste box: the first-time visitor sees
+          the input above the fold, and the diagram is there for anyone who scrolls. */}
+      {status.phase === 'idle' && <PipelineDiagram />}
 
       {status.phase === 'reading' && (
         <div className="ruled rounded-sm border border-ink-line bg-ink-raised p-5">
