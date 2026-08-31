@@ -20,37 +20,39 @@ function GitHubMark() {
 export function Nav() {
   return (
     <header className="sticky top-0 z-20 border-b border-ink-line bg-ink/85 backdrop-blur-md">
-      <nav className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-3">
+      {/* Wraps rather than overflowing. Five links no longer fit one 390px row:
+          before this, every page scrolled 253px sideways on a phone. */}
+      <nav className="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-2.5 sm:px-6 sm:py-3">
         <Link href="/" className="group flex items-center gap-2">
           <span className="flex h-6 w-6 items-center justify-center rounded-sm bg-paper font-mono text-xs font-bold text-paper-ink">
             G
           </span>
           <span className="text-sm font-semibold tracking-wide text-text">GAMBIT</span>
-          <span className="label">YourMove</span>
+          <span className="label hidden sm:inline">YourMove</span>
         </Link>
 
-        <div className="flex items-center gap-1 text-sm">
+        <div className="flex flex-wrap items-center gap-x-0.5 gap-y-1 text-[13px] sm:gap-x-1 sm:text-sm">
           <Link
             href="/fleet"
-            className="rounded-sm px-3 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text"
+            className="rounded-sm px-2 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text sm:px-3"
           >
             Fleet
           </Link>
           <Link
             href="/chat"
-            className="rounded-sm px-3 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text"
+            className="rounded-sm px-2 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text sm:px-3"
           >
             Assistant
           </Link>
           <Link
             href="/train"
-            className="rounded-sm px-3 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text"
+            className="rounded-sm px-2 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text sm:px-3"
           >
             Train
           </Link>
           <Link
             href="/architecture"
-            className="rounded-sm px-3 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text"
+            className="rounded-sm px-2 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text sm:px-3"
           >
             How it works
           </Link>
@@ -58,7 +60,7 @@ export function Nav() {
             href={REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text"
+            className="flex items-center gap-1.5 rounded-sm px-2 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text sm:px-3"
           >
             <GitHubMark />
             GitHub

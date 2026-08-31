@@ -294,7 +294,9 @@ body {
 .fleetviz .seal .mark::before { content: "◆"; }
 .fleetviz .seal .snote { color: color-mix(in srgb, var(--fgold) 80%, var(--text)); font-size: 0.98rem; }
 .fleetviz .seal .hash { font-family: var(--fmono); font-size: 11px; color: color-mix(in srgb, var(--fgold) 65%, transparent); margin-left: auto; }
-.fleetviz .verdict-chip { display: inline-flex; align-items: center; gap: 0.6em; border: 1px solid var(--fline); background: var(--fpanel); border-radius: 6px; padding: 0.7rem 1.1rem; font-size: 1rem; color: var(--fdim); }
+/* max-width + wrap: at 390px this chip was 354px of content inside 1.1rem
+   padding, which pushed /fleet 10px past the viewport. */
+.fleetviz .verdict-chip { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.6em; max-width: 100%; border: 1px solid var(--fline); background: var(--fpanel); border-radius: 6px; padding: 0.7rem 1.1rem; font-size: 1rem; color: var(--fdim); }
 .fleetviz .verdict-chip b { color: var(--ftext); font-weight: 600; }
 .fleetviz .foot { margin-top: 2.8rem; padding-top: 1.3rem; border-top: 1px solid var(--fline); display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: baseline; font-size: 0.95rem; color: var(--ffaint); }
 .fleetviz .foot .count { font-family: var(--fmono); color: var(--fdim); }
