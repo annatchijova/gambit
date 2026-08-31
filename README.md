@@ -14,6 +14,16 @@ not decide anything on your behalf.
 
 **Live:** <https://gambit-yourmove-1028999311218.us-central1.run.app>
 
+> ### New — WATCH, the autonomous mode
+> Most AI waits to be asked. **WATCH does not.** It is an agent that reads a whole
+> inbox on its own in the background, **seals a verdict for every message before
+> any model is called**, and — by a deterministic, tamper-evident rule — archives
+> the noise, holds the ambiguous, and **escalates only the corroborated pressure,
+> with drafts already staged.** It does the heavy lifting; the irreversible act
+> stays yours. Driven by Cloud Scheduler with no human in the loop. Dashboard at
+> **`/watch`**, endpoint at **`GET /api/watch`**.
+> **→ [Jump to WATCH](#watch--the-autonomous-mode)**
+
 ---
 
 ## What GAMBIT does

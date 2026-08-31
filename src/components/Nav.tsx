@@ -33,6 +33,12 @@ export function Nav() {
 
         <div className="flex flex-wrap items-center gap-x-0.5 gap-y-1 text-[13px] sm:gap-x-1 sm:text-sm">
           <Link
+            href="/watch"
+            className="rounded-sm px-2 py-1.5 font-medium text-emerald-300 transition hover:bg-emerald-400/[0.08] hover:text-emerald-200 sm:px-3"
+          >
+            Watch
+          </Link>
+          <Link
             href="/fleet"
             className="rounded-sm px-2 py-1.5 text-text-dim transition hover:bg-white/[0.05] hover:text-text sm:px-3"
           >

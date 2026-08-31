@@ -18,7 +18,7 @@ import { Footer } from '@/components/Footer';
 export const metadata: Metadata = {
   title: 'GAMBIT YourMove',
   description:
-    'Tactical AI copilot for high-stakes negotiations. Reads the tactic, shows the evidence, and leaves the move to you.',
+    'Tactical AI copilot for high-stakes negotiations. Reads the tactic, shows the evidence, and leaves the move to you. Now with WATCH — an autonomous agent that triages a whole inbox in the background, seals a verdict for every message before any model runs, and escalates only what needs you.',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
