@@ -51,6 +51,14 @@ Ask Gemini *"Why did the rules and Gemini disagree?"*, *"What would make this a 
 
 ---
 
+## Architecture
+
+<p align="center">
+  <img src="visual/02.png" alt="GAMBIT architecture" width="920">
+</p>
+
+---
+
 ## Status
 
 Built and deployed on Cloud Run with Vertex AI. The read, the questions about
@@ -565,12 +573,6 @@ Gemini 3.5 Flash and 3.5 Flash-Lite · Vertex AI · Cloud Run · Vitest
 
 
 ---
-
-## Architecture
-
-<p align="center">
-  <img src="visual/02.png" alt="GAMBIT architecture" width="920">
-</p>
 
 ## Screenshots
 
