@@ -12,7 +12,7 @@ not decide anything on your behalf.
 
 > AI increases agency. It does not replace it.
 
-**Live:** <https://gambit-yourmove-1028999311218.us-central1.run.app>
+**Live:** <https://gambit-1048644120951.us-central1.run.app/>
 
 ### WATCH is scheduled and green on Google Cloud
 
